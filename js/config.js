@@ -7,7 +7,7 @@ window.INVITE = {
   letters: ['С', 'А', 'П', 'А'],
   // Дұрыс жауаптар (регистр, бос орын маңызды емес; латынша SAPA да өтеді)
   answers: ['САПА', 'SAPA'],
-  question: 'Біздің бөлім қалай аталады?',
+  question: 'Біз ешқашан нені құрбан етпейміз?',
 
   // Басталу уақыты (Алматы, UTC+5)
   start: '2026-11-28T17:00:00+05:00',
@@ -23,8 +23,9 @@ window.INVITE = {
 
   music: {
     src: 'assets/music.m4a', // Just the Two of Us (алғашқы 4 минут)
+    title: 'Just the Two of Us',
     offset: 0,      // қай секундтан бастау
-    volume: 0.7,    // 0…1
+    volume: 0.9,    // 0…1
     fadeIn: 3       // секунд
   },
 

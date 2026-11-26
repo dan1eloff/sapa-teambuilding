@@ -6,8 +6,9 @@
 (function () {
   var cfg = window.INVITE.music;
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx = null, master = null, musicGain = null, srcNode = null;
+  var ctx = null, master = null, musicGain = null, srcNode = null, analyser = null, freq = null;
   var primed = false, musicOn = false, muted = false;
+  var lvl = { bass: 0, mid: 0, peak: 0.25 };
 
   var el = new Audio();
   el.src = cfg.src;
@@ -24,7 +25,12 @@
         master.connect(ctx.destination);
         musicGain = ctx.createGain();
         musicGain.gain.value = 0;
-        musicGain.connect(master);
+        analyser = ctx.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.6;
+        freq = new Uint8Array(analyser.frequencyBinCount);
+        musicGain.connect(analyser);
+        analyser.connect(master);
         srcNode = ctx.createMediaElementSource(el);
         srcNode.connect(musicGain);
       } catch (e) { srcNode = null; }
@@ -134,9 +140,54 @@
     src.start(t); src.stop(t + 1.1);
   }
 
+  // «Буль» — капля отрывается от сферы
+  function bloop() {
+    if (muted || !ensureCtx()) return;
+    var t = ctx.currentTime;
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(300, t);
+    o.frequency.exponentialRampToValueAtTime(1100, t + 0.09);
+    o.frequency.exponentialRampToValueAtTime(520, t + 0.18);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.2, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + 0.25);
+  }
+
+  // «Щёлк» рубильника перед тем, как загорится свет
+  function switchOn() {
+    if (muted || !ensureCtx()) return;
+    var t = ctx.currentTime, len = Math.floor(ctx.sampleRate * 0.06);
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    var src = ctx.createBufferSource(); src.buffer = buf;
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800;
+    var g = ctx.createGain(); g.gain.value = 0.5;
+    src.connect(lp); lp.connect(g); g.connect(master);
+    src.start(t);
+    tone(90, { dur: 0.18, vol: 0.18 });
+  }
+
+  // Уровень баса/середины 0…1 для огней в ритм (адаптивная нормализация)
+  function level() {
+    if (!analyser || !musicOn) return lvl;
+    analyser.getByteFrequencyData(freq);
+    var b = 0, m = 0, i;
+    for (i = 1; i <= 6; i++) b += freq[i];
+    for (i = 10; i <= 40; i++) m += freq[i];
+    b /= 6 * 255; m /= 31 * 255;
+    lvl.peak = Math.max(lvl.peak * 0.995, b, 0.2);
+    lvl.bass = Math.max(0, Math.min(1, (b / lvl.peak - 0.55) / 0.45));
+    lvl.mid = m;
+    return lvl;
+  }
+
   window.Sound = {
     unlock: unlock, startMusic: startMusic, toggleMute: toggleMute,
     chime: chime, success: success, error: error, whoosh: whoosh,
+    bloop: bloop, switchOn: switchOn, level: level,
     isMuted: function () { return muted; },
     _debug: function () { return { ctx: ctx && ctx.state, paused: el.paused, t: el.currentTime, gain: musicGain && musicGain.gain.value, webAudio: !!srcNode }; }
   };

@@ -22,19 +22,20 @@
     var angle = (o.angle == null ? 90 : o.angle) * Math.PI / 180;
     var spread = (o.spread == null ? 70 : o.spread) * Math.PI / 180;
     var v0 = o.velocity || Math.max(26, Math.min(48, H * 0.05));
+    var cols = o.colors || COLORS, sc = o.scale || 1;
     for (var i = 0; i < n; i++) {
       parts.push({
         x: x, y: y,
         a: angle + (Math.random() - 0.5) * spread,
         v: v0 * (0.5 + Math.random() * 0.65),
-        size: 4.5 + Math.random() * 5.5,
-        color: COLORS[(Math.random() * COLORS.length) | 0],
+        size: (4.5 + Math.random() * 5.5) * sc,
+        color: cols[(Math.random() * cols.length) | 0],
         rot: Math.random() * Math.PI * 2,
         vr: (Math.random() - 0.5) * 0.25,
         tilt: Math.random() * Math.PI * 2,
         vt: 0.06 + Math.random() * 0.12,
         wob: Math.random() * 10,
-        dot: Math.random() < 0.28,
+        dot: o.dots || Math.random() < 0.28,
         life: 0,
         max: 220 + Math.random() * 120
       });
