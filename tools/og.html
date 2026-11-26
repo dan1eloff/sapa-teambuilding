@@ -1,89 +1,72 @@
 <!doctype html>
-<!-- Telegram превью суреті (1200×630). Қайта жасау: README.md қараңыз. -->
+<!-- Telegram превью суреті (1200×630), палитра «Виски». Қайта жасау: README.md қараңыз. -->
 <html lang="kk">
 <head>
 <meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Montserrat:wght@200;700;900&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Tilt+Neon&display=block" rel="stylesheet">
 <style>
   * { margin: 0; box-sizing: border-box; }
-  html, body { width: 1200px; height: 630px; overflow: hidden; background: #040d0a; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
   body {
-    position: relative; color: #eef7f3; font-family: 'Montserrat', sans-serif;
+    position: relative; font-family: 'Montserrat', sans-serif; color: #f5ebde;
     background:
-      radial-gradient(ellipse 60% 70% at 78% 58%, rgba(47,137,112,.42), transparent 70%),
-      radial-gradient(120% 90% at 30% 0%, #0d2a1f 0%, #040d0a 65%);
+      radial-gradient(ellipse 70% 90% at 30% -10%, rgba(222,128,56,.28), transparent 65%),
+      radial-gradient(ellipse 60% 70% at 80% 110%, rgba(120,32,40,.5), transparent 70%),
+      radial-gradient(circle, rgba(255,210,160,.05) 1.5px, transparent 2px) 0 0 / 36px 36px,
+      #120b08;
   }
-  .dots {
-    position: absolute; inset: 0;
-    background-image: radial-gradient(rgba(155,231,200,.16) 1.2px, transparent 1.6px);
-    background-size: 34px 34px;
-    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 60% 55%, #000 30%, transparent 100%);
+  svg.wire { position: absolute; left: 0; top: 0; }
+  .bulb {
+    position: absolute; width: 12px; height: 16px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 38%, #fffaf0 0 22%, #ffe2ae 45%, #f2ab55 100%);
+    box-shadow: 0 0 14px 4px rgba(240,150,60,.42), 0 0 40px 10px rgba(240,150,60,.14);
   }
-  svg.garland { position: absolute; top: 0; left: 0; }
-  .wire { fill: none; stroke: #23372f; stroke-width: 2; }
-  .core { fill: #ffe2a3; }
-  .text { position: absolute; left: 84px; top: 170px; }
-  .eyebrow { display: flex; align-items: center; gap: 16px; color: #3fd1a0; font-weight: 700; font-size: 18px; letter-spacing: .5em; }
-  .eyebrow i { width: 56px; height: 2px; background: #3fd1a0; opacity: .7; }
-  h1 { margin-top: 26px; font-weight: 900; font-size: 104px; line-height: .9; letter-spacing: -.04em; }
-  .gold {
-    background: linear-gradient(180deg, #ffeabb 0%, #f0c06a 48%, #c9973f 100%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
+  .left { position: absolute; left: 96px; top: 170px; display: flex; flex-direction: column; align-items: flex-start; gap: 30px; }
+  .neon {
+    padding: 26px 34px 20px; border-radius: 34px;
+    display: flex; flex-direction: column; align-items: center;
+    background: rgba(18,8,6,.35);
+    box-shadow: 0 0 0 3px #ff8a7a, 0 0 10px 1px #e0485c, 0 0 36px rgba(214,69,90,.55), inset 0 0 10px rgba(224,72,92,.6), inset 0 0 40px rgba(214,69,90,.2);
   }
-  .meta { margin-top: 34px; display: flex; gap: 14px; }
-  .chip {
-    padding: 14px 22px; border-radius: 99px;
-    border: 1.5px solid rgba(155,231,200,.22); background: rgba(10,30,24,.6);
-    font-weight: 700; font-size: 24px; letter-spacing: .02em;
+  .a { font: 400 132px/0.92 'Tilt Neon', sans-serif; letter-spacing: .06em; padding-left: .06em; color: #ffe6e4;
+       text-shadow: 0 0 4px #fff, 0 0 14px #ff7a8a, 0 0 30px #d6455a, 0 0 64px rgba(214,52,72,.6), 0 0 120px rgba(214,52,72,.5); }
+  .b { font: 400 71px/1.1 'Tilt Neon', sans-serif; letter-spacing: .08em; padding-left: .08em; color: #fff4dc;
+       text-shadow: 0 0 4px #fff, 0 0 14px #ffe2ae, 0 0 30px #f2ab55, 0 0 64px #b0632a, 0 0 120px rgba(176,99,42,.7); }
+  .meta { font: 700 34px 'Montserrat', sans-serif; color: #f5ebde; }
+  .record {
+    position: absolute; right: 110px; top: 150px; width: 330px; height: 330px; border-radius: 50%;
+    background: repeating-radial-gradient(circle, #1c1a19 0 1px, #090808 1px 3.2px);
+    box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,205,150,.12), 0 0 120px rgba(240,150,60,.24);
   }
-  .chip.g { border-color: rgba(240,192,106,.55); color: #f0c06a; background: rgba(240,192,106,.08); }
-  .place { margin-top: 18px; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 22px; color: #8aa69c; }
-  .mark { position: absolute; right: 120px; top: 190px; width: 300px; height: 300px; filter: drop-shadow(0 0 60px rgba(63,209,160,.55)); }
-  .ring {
-    position: absolute; right: 70px; top: 140px; width: 400px; height: 400px;
-    border: 2px solid rgba(63,209,160,.45);
-    border-radius: 38% 62% 58% 42% / 44% 38% 62% 56%;
+  .label {
+    position: absolute; left: 105px; top: 105px; width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle, #9a3040, #6e1c28);
+    display: flex; align-items: center; justify-content: center;
+    font: 900 26px 'Montserrat', sans-serif; letter-spacing: .06em; color: #ffe2ae;
   }
-  .lock { position: absolute; right: 120px; top: 566px; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 20px; color: #9be7c8; }
+  .sheen { position: absolute; inset: 0; border-radius: 50%;
+    background: conic-gradient(from 20deg, transparent 0 18%, rgba(255,220,170,.10) 24%, transparent 30% 68%, rgba(255,220,170,.08) 74%, transparent 80%); }
+  .arm { position: absolute; right: 92px; top: 132px; width: 5px; height: 186px; border-radius: 3px;
+    background: linear-gradient(#ffe2ae, #b0632a); transform: rotate(24deg); transform-origin: 50% 0; }
 </style>
 </head>
 <body>
-  <div class="dots"></div>
-  <svg class="garland" id="g" width="1200" height="170" viewBox="0 0 1200 170">
-    <defs>
-      <radialGradient id="b">
-        <stop offset="0" stop-color="#ffe2a3"/>
-        <stop offset=".35" stop-color="#f0c06a" stop-opacity=".55"/>
-        <stop offset="1" stop-color="#f0c06a" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-  </svg>
-  <div class="ring"></div>
-  <svg class="mark" viewBox="0 0 100 100">
-    <defs><linearGradient id="e" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5fe0b4"/><stop offset="1" stop-color="#2F8970"/></linearGradient></defs>
-    <path d="M6 50 L43 13 Q50 6 57 13 L87 43 Q94 50 87 57 L57 87 Q50 94 43 87 Z" fill="url(#e)"/>
-  </svg>
-  <div class="text">
-    <div class="eyebrow"><i></i>SAPA TEAM</div>
-    <h1>TEAM<br><span class="gold">BUILDING</span></h1>
-    <div class="meta"><span class="chip g">28.11 · СЕНБІ</span><span class="chip">17:00</span></div>
-    <p class="place">Shattyq House, Қаскелең</p>
+  <svg class="wire" width="1200" height="160"><path d="M -10 6 Q 600 150 1210 6" stroke="#3a281e" stroke-width="2" fill="none"/></svg>
+  <div id="bulbs"></div>
+  <div class="left">
+    <div class="neon"><div class="a">TEAM</div><div class="b">BUILDING</div></div>
+    <div class="meta">Сапа · 28 қараша · 17:00</div>
   </div>
-  <p class="lock">🔐 Кодты тап та, шақыруды аш</p>
+  <div class="record"><div class="label">САПА</div><div class="sheen"></div></div>
   <script>
-    var g = document.getElementById('g'), NS = 'http://www.w3.org/2000/svg';
-    function el(t, a) { var e = document.createElementNS(NS, t); for (var k in a) e.setAttribute(k, a[k]); g.appendChild(e); return e; }
-    [[-20, 8, 1220, 30, 80], [-20, 46, 1220, 4, 60]].forEach(function (s, si) {
-      var mx = (s[0] + s[2]) / 2, my = (s[1] + s[3]) / 2 + s[4] * 2;
-      var p = el('path', { d: 'M' + s[0] + ' ' + s[1] + ' Q' + mx + ' ' + my + ' ' + s[2] + ' ' + s[3], 'class': 'wire' });
-      var len = p.getTotalLength(), n = Math.floor(len / 58);
-      for (var i = 1; i < n; i++) {
-        var q = p.getPointAtLength((len / n) * (i + (si ? .5 : 0)));
-        var o = 0.45 + ((i * 37 + si * 11) % 10) / 18;
-        el('circle', { cx: q.x, cy: q.y + 10, r: 22, fill: 'url(#b)', opacity: o });
-        el('circle', { cx: q.x, cy: q.y + 9, r: 5, 'class': 'core', opacity: o });
-      }
-    });
+    var n = 26, w = 1200, y0 = 6, sag = 144, half = 6, out = '';
+    for (var i = 0; i < n; i++) {
+      var t = (i + 0.5) / n, u = 1 - t;
+      var x = u * u * -10 + 2 * u * t * (w / 2) + t * t * (w + 10);
+      var y = u * u * y0 + 2 * u * t * (y0 + sag) + t * t * y0;
+      out += '<div class="bulb" style="left:' + Math.round(x - half) + 'px;top:' + Math.round(y + 1) + 'px"></div>';
+    }
+    document.getElementById('bulbs').innerHTML = out;
   </script>
 </body>
 </html>

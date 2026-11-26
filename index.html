@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Сапа · Тимбилдинг 28.11</title>
   <meta name="description" content="Сапа командасының тимбилдингіне шақыру. Кодты тап та, шақыруды аш!">
-  <meta name="theme-color" content="#040d0a">
+  <meta name="theme-color" content="#120b08">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Сапа">
   <meta property="og:title" content="Сапа · Тимбилдинг 28.11">
   <meta property="og:description" content="Кодты тап та, шақыруды аш 🔐">
   <meta property="og:url" content="https://dan1eloff.github.io/sapa-teambuilding/">
-  <meta property="og:image" content="https://dan1eloff.github.io/sapa-teambuilding/assets/og.jpg">
+  <meta property="og:image" content="https://dan1eloff.github.io/sapa-teambuilding/assets/og.jpg?v=2">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
@@ -22,41 +22,45 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@200;300;500;600;700;800;900&family=Tilt+Neon&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@200;300;400;500;600;700;800;900&family=Tilt+Neon&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="stage-intro">
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <radialGradient id="g-bulb">
-        <stop offset="0" stop-color="#ffe2a3" stop-opacity="1"/>
-        <stop offset=".35" stop-color="#f0c06a" stop-opacity=".55"/>
-        <stop offset="1" stop-color="#f0c06a" stop-opacity="0"/>
+      <radialGradient id="g-off" cx=".4" cy=".3" r=".7">
+        <stop offset="0" stop-color="#5a4232"/>
+        <stop offset="1" stop-color="#2a1c15"/>
+      </radialGradient>
+      <radialGradient id="g-on" cx=".5" cy=".38" r=".62">
+        <stop offset="0" stop-color="#fffaf0"/>
+        <stop offset=".22" stop-color="#fffaf0"/>
+        <stop offset=".45" stop-color="#ffe2ae"/>
+        <stop offset="1" stop-color="#f2ab55"/>
+      </radialGradient>
+      <radialGradient id="g-halo">
+        <stop offset="0" stop-color="#f0963c" stop-opacity=".55"/>
+        <stop offset=".45" stop-color="#f0963c" stop-opacity=".18"/>
+        <stop offset="1" stop-color="#f0963c" stop-opacity="0"/>
       </radialGradient>
     </defs>
   </svg>
 
   <!-- Фон -->
-  <div class="bg" aria-hidden="true">
-    <div class="bg-glow"></div>
-    <div class="bg-dots"></div>
-    <div class="bg-vignette"></div>
-  </div>
-  <div class="spots" aria-hidden="true"><i class="spot spot-l"></i><i class="spot spot-r"></i></div>
-  <svg class="garland" id="garland" data-state="soft" aria-hidden="true"></svg>
+  <div class="bg" aria-hidden="true"></div>
+  <svg class="garland" id="garland" data-state="off" aria-hidden="true"></svg>
   <div class="notes" id="notes" aria-hidden="true"></div>
   <canvas class="liquid" id="liquid" aria-hidden="true"></canvas>
   <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
 
-  <!-- Пластинка = кнопка звука -->
-  <button class="vinyl" id="soundBtn" type="button" aria-label="Дыбысты өшіру" hidden>
-    <span class="vinyl-disc"><span class="vinyl-label"></span></span>
-    <span class="vinyl-arm"></span>
-  </button>
-  <div class="now-playing" id="nowPlaying" aria-hidden="true">
-    <svg viewBox="0 0 24 32"><ellipse cx="8" cy="25" rx="6" ry="4.5" transform="rotate(-20 8 25)"/><rect x="12.5" y="4" width="2" height="21"/><path d="M14.5 4c0 5 7 6 7 12-1.5-3-4-4-7-4z"/></svg>
-    <span id="trackName"></span>
+  <!-- Плеер: название трека + пластинка = кнопка звука -->
+  <div class="player" id="player" hidden>
+    <div class="now-playing">♪ <span id="trackName"></span></div>
+    <button class="vinyl" id="soundBtn" type="button" aria-label="Дыбысты өшіру">
+      <span class="vinyl-disc"><span class="vinyl-label"></span></span>
+      <span class="vinyl-arm"></span>
+    </button>
   </div>
 
   <main>
@@ -72,64 +76,79 @@
 
     <!-- 2. Код -->
     <section class="screen screen-verify" id="verify">
-      <div class="verify-card" id="verifyCard">
-        <p class="verify-q" id="question"></p>
-        <label class="code" id="codeBox">
-          <input class="code-input" id="answer" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="4" aria-label="Жауап">
-          <span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
-        </label>
-        <p class="verify-msg" id="verifyMsg" aria-live="polite"></p>
+      <div class="verify-frame">
+        <div class="verify-card" id="verifyCard">
+          <p class="verify-q" id="question"></p>
+          <label class="code" id="codeBox">
+            <input class="code-input" id="answer" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" maxlength="4" aria-label="Жауап">
+            <span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span>
+          </label>
+          <p class="verify-msg" id="verifyMsg" aria-live="polite"></p>
+        </div>
       </div>
+      <div class="word word-small" id="wordSmall" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     </section>
 
     <!-- 3. Шақыру -->
     <section class="screen screen-reveal" id="reveal">
+      <i class="spot spot-l" aria-hidden="true"></i>
+      <i class="spot spot-r" aria-hidden="true"></i>
+      <i class="bokeh" style="left:-30px;top:520px;width:120px;height:120px;--a:.10" aria-hidden="true"></i>
+      <i class="bokeh" style="right:0;top:760px;width:90px;height:90px;--a:.08" aria-hidden="true"></i>
+      <i class="bokeh" style="left:40px;top:1240px;width:70px;height:70px;--a:.07" aria-hidden="true"></i>
+      <i class="bokeh" style="right:-40px;top:1500px;width:140px;height:140px;--a:.07" aria-hidden="true"></i>
+      <i class="bokeh" style="left:-20px;top:1900px;width:110px;height:110px;--a:.06" aria-hidden="true"></i>
+
       <header class="hero">
-        <h2 class="neon" id="neon" aria-label="Team building">
-          <span class="neon-a" data-t="TEAM">TEAM</span>
-          <span class="neon-b" data-t="BUILDING">BUILDING</span>
-        </h2>
-        <p class="hero-sub rv">Сапа командасы, сенбіде кездесеміз!</p>
+        <div class="neon" id="neon" role="heading" aria-level="2" aria-label="Team building">
+          <span class="neon-a">TEAM</span>
+          <span class="neon-b">BUILDING</span>
+        </div>
+        <p class="hero-sub rv">Сапалы отбасы, сенбіде кездесеміз!</p>
       </header>
 
-      <div class="countdown card rv" id="countdown">
+      <div class="countdown rv" id="countdown">
         <p class="label">БАСТАЛУЫНА ҚАЛДЫ</p>
-        <div class="cd-grid" id="cdGrid">
-          <div class="cd-cell"><b data-u="d">00</b><span>КҮН</span></div>
-          <div class="cd-cell"><b data-u="h">00</b><span>САҒАТ</span></div>
-          <div class="cd-cell"><b data-u="m">00</b><span>МИНУТ</span></div>
-          <div class="cd-cell"><b data-u="s">00</b><span>СЕКУНД</span></div>
+        <div class="cd-row" id="cdGrid">
+          <div class="cd-u"><b data-u="d">00</b><span>КҮН</span></div>
+          <i class="cd-sep">:</i>
+          <div class="cd-u"><b data-u="h">00</b><span>САҒАТ</span></div>
+          <i class="cd-sep">:</i>
+          <div class="cd-u"><b data-u="m">00</b><span>МИНУТ</span></div>
+          <i class="cd-sep">:</i>
+          <div class="cd-u"><b data-u="s">00</b><span>СЕКУНД</span></div>
         </div>
         <p class="cd-done" id="cdDone" hidden></p>
       </div>
 
-      <div class="info-grid">
-        <article class="card info io">
-          <svg class="info-ic" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
-          <p class="label">КҮНІ</p>
-          <p class="info-big" id="dateBig"></p>
-          <p class="info-small" id="dateSmall"></p>
-        </article>
-        <article class="card info io">
-          <svg class="info-ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-          <p class="label">УАҚЫТЫ</p>
-          <p class="info-big" id="timeBig"></p>
-          <p class="info-small" id="timeSmall"></p>
-        </article>
-        <article class="card info info-wide io">
-          <svg class="info-ic" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+      <div class="cards">
+        <div class="card-when io">
+          <div class="cw-in">
+            <div class="cw-col">
+              <p class="label">КҮНІ</p>
+              <p class="gold-big" id="dateBig"></p>
+              <p class="small" id="dateSmall"></p>
+            </div>
+            <div class="cw-col cw-right">
+              <p class="label">УАҚЫТЫ</p>
+              <p class="gold-big" id="timeBig"></p>
+              <p class="small" id="timeSmall"></p>
+            </div>
+          </div>
+        </div>
+        <div class="card card-place io">
           <p class="label">МЕКЕНЖАЙ</p>
-          <p class="info-big" id="placeBig"></p>
-          <p class="info-small" id="placeSmall"></p>
-          <a class="btn-map" id="mapBtn" href="#" target="_blank" rel="noopener">2GIS-те ашу
-            <svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
-        </article>
-        <article class="card info info-wide info-dress io">
-          <svg class="info-ic" viewBox="0 0 24 24"><path d="M8 3 3.5 5.5 5 10l2.5-1V21h9V9l2.5 1 1.5-4.5L16 3c-.5 1.5-2 2.5-4 2.5S8.5 4.5 8 3z"/></svg>
-          <p class="label">ДРЕСС-КОД</p>
-          <p class="info-big" id="dressBig"></p>
-          <p class="info-small" id="dressSmall"></p>
-        </article>
+          <p class="place-big" id="placeBig"></p>
+          <p class="small" id="placeSmall"></p>
+          <a class="btn-outline" id="mapBtn" href="#" target="_blank" rel="noopener">2GIS-те ашу</a>
+        </div>
+        <div class="card card-dress io">
+          <div>
+            <p class="label">ДРЕСС-КОД</p>
+            <p class="dress-big" id="dressBig"></p>
+          </div>
+          <p class="small" id="dressSmall"></p>
+        </div>
       </div>
 
       <section class="gallery io">
@@ -142,7 +161,7 @@
       </section>
 
       <div class="cta-wrap io">
-        <button class="cta" id="confirmBtn" type="button"><span>ҚАТЫСУДЫ РАСТАУ</span></button>
+        <button class="cta" id="confirmBtn" type="button"><i class="cta-glint"></i><span>ҚАТЫСУДЫ РАСТАУ</span></button>
       </div>
       <footer class="foot">28 · 11 · 2026</footer>
     </section>
@@ -150,14 +169,17 @@
     <!-- 4. Финал -->
     <section class="screen screen-final" id="final">
       <div class="record" aria-hidden="true">
-        <div class="record-disc"><div class="record-label"><b id="recDate"></b><span id="recTime"></span></div></div>
+        <div class="record-disc">
+          <div class="record-label"><b id="recDate"></b><i></i><span id="recTime"></span></div>
+        </div>
+        <div class="record-sheen"></div>
+        <div class="record-arm"></div>
       </div>
-      <h2 class="final-title">СЕНІ<br><span class="gold-text">КҮТЕМІЗ!</span></h2>
+      <h2 class="final-title">СЕНІ КҮТЕМІЗ!</h2>
       <div class="card final-card">
         <p class="final-when" id="finalWhen"></p>
-        <p class="final-where" id="finalWhere"></p>
-        <a class="btn-map" id="mapBtn2" href="#" target="_blank" rel="noopener">2GIS-те ашу
-          <svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+        <p class="small" id="finalWhere"></p>
+        <a class="btn-outline" id="mapBtn2" href="#" target="_blank" rel="noopener">2GIS-те ашу</a>
       </div>
       <button class="link-back" id="backBtn" type="button">Басына қайту</button>
     </section>

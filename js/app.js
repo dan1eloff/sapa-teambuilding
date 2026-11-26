@@ -73,37 +73,30 @@
     if (parent) parent.appendChild(e);
     return e;
   }
+  // Одна нить с провисом, лампы-овалы. Состояния: off (вход), dim (код), lit (приглашение)
   function buildGarland() {
     var W = window.innerWidth;
     if (W === garlandW) return;
     garlandW = W;
     var lit = garland.getAttribute('data-state') === 'lit';
     garland.innerHTML = '';
-    garland.setAttribute('viewBox', '0 0 ' + W + ' 150');
-    var strands = [
-      { x0: -12, y0: 6, x1: W + 12, y1: 24, sag: Math.min(70, W * 0.17) },
-      { x0: -12, y0: 34, x1: W + 12, y1: 2, sag: Math.min(52, W * 0.12) }
-    ];
-    var gap = 33, seed = 0;
-    strands.forEach(function (s, si) {
-      var mx = (s.x0 + s.x1) / 2, my = (s.y0 + s.y1) / 2 + s.sag * 2;
-      var path = mk('path', { d: 'M' + s.x0 + ' ' + s.y0 + ' Q' + mx + ' ' + my + ' ' + s.x1 + ' ' + s.y1, 'class': 'wire' }, garland);
-      var len = path.getTotalLength();
-      var n = Math.max(6, Math.floor(len / gap));
-      for (var i = 1; i < n; i++) {
-        var p = path.getPointAtLength((len / n) * (i + (si ? 0.5 : 0)));
-        var g = mk('g', { 'class': 'bulb' + (lit ? ' on' : ''), 'data-x': p.x.toFixed(1) }, garland);
-        seed++;
-        g.style.setProperty('--d', (1.6 + ((seed * 37) % 23) / 10) + 's');
-        g.style.setProperty('--dl', (-((seed * 53) % 30) / 10) + 's');
-        mk('rect', { x: p.x - 1.6, y: p.y - 1, width: 3.2, height: 4, rx: 1, 'class': 'socket' }, g);
-        mk('circle', { cx: p.x, cy: p.y + 6.5, r: 3.2, 'class': 'glass' }, g);
-        var light = mk('g', { 'class': 'light' }, g);
-        var tw = mk('g', { 'class': 'tw' }, light);
-        mk('circle', { cx: p.x, cy: p.y + 7, r: 13, fill: 'url(#g-bulb)', 'class': 'halo' }, tw);
-        mk('circle', { cx: p.x, cy: p.y + 6.5, r: 3, 'class': 'core' }, tw);
-      }
-    });
+    garland.setAttribute('viewBox', '0 0 ' + W + ' 120');
+    var x0 = -10, x2 = W + 10, x1 = W / 2, top = 4, sag = 100;
+    mk('path', { d: 'M' + x0 + ' ' + top + ' Q' + x1 + ' ' + (top + sag) + ' ' + x2 + ' ' + top, 'class': 'wire' }, garland);
+    var n = Math.max(14, Math.min(30, Math.round(19 * W / 390)));
+    for (var i = 0; i < n; i++) {
+      var t = (i + 0.5) / n, u = 1 - t;
+      var x = u * u * x0 + 2 * u * t * x1 + t * t * x2;
+      var y = u * u * top + 2 * u * t * (top + sag) + t * t * top;
+      var g = mk('g', { 'class': 'bulb' + (lit ? ' on' : ''), 'data-x': x.toFixed(1) }, garland);
+      var cy = y + 6.5;
+      mk('ellipse', { cx: x, cy: cy, rx: 4, ry: 5.5, fill: 'url(#g-off)', 'class': 'glass' }, g);
+      var light = mk('g', { 'class': 'light' }, g);
+      var tw = mk('g', { 'class': 'tw' }, light);
+      tw.style.setProperty('--dl', ((i * 0.37) % 2.4).toFixed(2) + 's');
+      mk('circle', { cx: x, cy: cy, r: 30, fill: 'url(#g-halo)', 'class': 'halo' }, tw);
+      mk('ellipse', { cx: x, cy: cy, rx: 4, ry: 5.5, fill: 'url(#g-on)' }, tw);
+    }
   }
   function ignite() {
     garland.setAttribute('data-state', 'lit');
@@ -112,15 +105,16 @@
       setTimeout(function () {
         b.classList.add('on');
         if (!reduce) anim(b.querySelector('.light'), [
-          { opacity: 0.06 }, { opacity: 1, offset: 0.2 }, { opacity: 0.25, offset: 0.4 }, { opacity: 1, offset: 0.6 }, { opacity: 1 }
+          { opacity: 0 }, { opacity: 1, offset: 0.2 }, { opacity: 0.25, offset: 0.4 }, { opacity: 1, offset: 0.6 }, { opacity: 1 }
         ], { duration: 420 });
-      }, reduce ? 0 : 80 + i * 38);
+      }, reduce ? 0 : 80 + i * 45);
     });
   }
   buildGarland();
 
   /* ---------- 1. Жидкая сфера ---------- */
-  var orb = $('#orb'), wordSpans = $$('#word span');
+  var orb = $('#orb'), wordSpans = $$('#word span'), smallSpans = $$('#wordSmall span');
+  function smallRects() { return smallSpans.map(function (s) { return s.getBoundingClientRect(); }); }
   var liquidCanvas = $('#liquid'), liquid = null, liquidReady = false, pending = [];
   var taps = 0, formed = 0;
 
@@ -154,7 +148,11 @@
     clearTimeout(rsT);
     rsT = setTimeout(function () {
       buildGarland();
-      if (liquid) { liquid.resize(); layoutLiquid(); }
+      if (liquid) {
+        liquid.resize();
+        if (stage === 'intro') layoutLiquid();
+        else if (stage === 'verify') liquid.moveLetters(smallRects());
+      }
     }, 120);
   });
 
@@ -162,6 +160,8 @@
     Sound.chime(i);
     vibrate(12);
     wordSpans[i].classList.add('on');
+    smallSpans[i].textContent = C.letters[i];
+    smallSpans[i].classList.add('on');
     formed++;
     if (formed === TOTAL) finishIntro();
   }
@@ -197,6 +197,7 @@
       if (liquid) liquid.setAlpha(0.4);
       return go('verify');
     }).then(function () {
+      if (liquid) liquid.moveLetters(smallRects());
       renderCells();
       try { input.focus({ preventScroll: true }); } catch (e) {}
     });
@@ -273,15 +274,26 @@
   }
 
   /* ---------- 3. Джаз-клуб ашылады ---------- */
-  var soundBtn = $('#soundBtn'), nowPlaying = $('#nowPlaying');
-  var neonA = $('.neon-a'), neonB = $('.neon-b');
+  var soundBtn = $('#soundBtn'), player = $('#player');
+  var neon = $('#neon'), neonA = $('.neon-a'), neonB = $('.neon-b');
   var revealAt = 0;
 
-  soundBtn.addEventListener('click', function () {
+  // Звук выключается пластинкой: маленькой в плеере или большой на финале
+  var record = $('.record');
+  function toggleSound() {
     var m = Sound.toggleMute();
     soundBtn.classList.toggle('is-muted', m);
+    player.classList.toggle('is-muted', m);
+    record.classList.toggle('is-muted', m);
     soundBtn.setAttribute('aria-label', m ? 'Дыбысты қосу' : 'Дыбысты өшіру');
-  });
+    vibrate(10);
+  }
+  soundBtn.addEventListener('click', toggleSound);
+  record.addEventListener('click', toggleSound);
+  // При прокрутке плашка с названием трека прячется, пластинка остаётся
+  window.addEventListener('scroll', function () {
+    player.classList.toggle('compact', window.scrollY > 60);
+  }, { passive: true });
 
   function startReveal() {
     if (liquid) {
@@ -300,20 +312,19 @@
         ignite();
       });
       wait(reduce ? 0 : 900).then(function () { body.classList.add('spots-on'); });
-      wait(reduce ? 0 : 1700).then(function () { neonA.classList.add('lit'); });
-      wait(reduce ? 0 : 2150).then(function () {
+      wait(reduce ? 0 : 1350).then(function () { neon.classList.add('lit'); });
+      wait(reduce ? 0 : 1750).then(function () { neonA.classList.add('lit'); });
+      wait(reduce ? 0 : 2200).then(function () {
         neonB.classList.add('lit');
         if (!reduce) sparks(neonB);
       });
       wait(reduce ? 300 : 2500).then(startNotes);
       wait(reduce ? 300 : 2900).then(function () {
-        soundBtn.hidden = false;
+        player.hidden = false;
         anim(soundBtn, [{ transform: 'translateY(-24px) rotate(-120deg)', opacity: 0 }, { transform: 'none', opacity: 1 }],
           { duration: 700, easing: 'cubic-bezier(.2,.8,.2,1)' });
-        if (C.music.title) {
-          nowPlaying.classList.add('show');
-          setTimeout(function () { nowPlaying.classList.remove('show'); }, 5000);
-        }
+        anim(player.querySelector('.now-playing'), [{ transform: 'translateX(14px)', opacity: 0 }, { transform: 'none', opacity: 1 }],
+          { duration: 600, delay: 250, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
       });
     });
   }
@@ -323,7 +334,7 @@
     Confetti.burst({
       x: (r.left + r.width / 2) / window.innerWidth, y: (r.top + r.height * 0.6) / window.innerHeight,
       count: 46, spread: 300, angle: 90, velocity: 17, scale: 0.45, dots: true,
-      colors: ['#ffe2a3', '#f0c06a', '#ffffff', '#fff3d6']
+      colors: ['#ffe2ae', '#f2ab55', '#fff4dc', '#ff8a7a']
     });
   }
 
@@ -434,15 +445,20 @@
   C.photos.forEach(function (p, i) {
     var fig = document.createElement('figure');
     fig.className = 'shot';
+    var box = document.createElement('div');
+    box.className = 'shot-img';
     var img = new Image();
     img.alt = p.caption;
     img.width = 464; img.height = 580;
     img.decoding = 'async';
     img.loading = i < 2 ? 'eager' : 'lazy';
     img.src = p.src;
+    box.appendChild(img);
     var cap = document.createElement('figcaption');
-    cap.textContent = p.caption;
-    fig.appendChild(img); fig.appendChild(cap);
+    var num = document.createElement('b'); num.textContent = pad(i + 1);
+    var ttl = document.createElement('span'); ttl.textContent = p.caption;
+    cap.appendChild(num); cap.appendChild(ttl);
+    fig.appendChild(box); fig.appendChild(cap);
     track.appendChild(fig);
     gDots.appendChild(document.createElement('i'));
   });

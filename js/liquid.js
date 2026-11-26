@@ -1,8 +1,9 @@
 /*
- * Жидкая сфера (WebGL, метаболы).
+ * Жидкая сфера (WebGL, метаболы), палитра «Виски».
  * Сфера = главный шар + 5 «спутников», которые пружинят и создают живую поверхность.
  * Тап: сфера вздрагивает, отрывается капля, летит к своему месту и перетекает в букву
  * (поле капли сливается с размытым полем буквы из атласа).
+ * Под сферой: дышащее янтарное свечение, тень и отблеск на «полу».
  * Без WebGL возвращает null — тогда app.js включает упрощённый CSS-вариант.
  */
 (function () {
@@ -10,6 +11,8 @@
 
   var MAX_BALLS = 16;
   var SATS = 5, SAT_Q = 0.58, SAT_OFF = 0.34;
+  var VIS = Math.sqrt(1 + SATS * SAT_Q * SAT_Q);   // видимый радиус / радиус главного шара
+  var GLYPH = 104, CELL = 128;                       // кегль буквы в ячейке атласа
 
   var VERT = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.0,1.0);}';
   var FRAG = [
@@ -28,8 +31,46 @@
     'uniform float uW[4];',
     'uniform float uR;',
     'uniform float uAlpha;',
+    'uniform vec4 uGlow;',      // x, y, радиус, альфа
+    'uniform vec4 uShadow;',    // x, y, полуширина, полувысота
+    'uniform vec2 uShadowA;',   // альфа тени, альфа отблеска
+    'uniform vec3 uSph;',       // центр и видимый радиус сферы: внутри — гладкие сферические нормали
+    'vec3 amberRamp(float k) {',
+    '  vec3 c0 = vec3(1.000, 0.816, 0.525);',
+    '  vec3 c1 = vec3(0.941, 0.627, 0.275);',
+    '  vec3 c2 = vec3(0.710, 0.369, 0.118);',
+    '  vec3 c3 = vec3(0.345, 0.129, 0.043);',
+    '  vec3 c4 = vec3(0.161, 0.051, 0.020);',
+    '  if (k < 0.30) return mix(c0, c1, k / 0.30);',
+    '  if (k < 0.58) return mix(c1, c2, (k - 0.30) / 0.28);',
+    '  if (k < 0.86) return mix(c2, c3, (k - 0.58) / 0.28);',
+    '  return mix(c3, c4, clamp((k - 0.86) / 0.14, 0.0, 1.0));',
+    '}',
+    'vec3 letterRamp(float y) {',
+    '  vec3 a = vec3(1.000, 0.949, 0.839);',
+    '  vec3 b = vec3(0.949, 0.671, 0.333);',
+    '  vec3 c = vec3(0.710, 0.369, 0.118);',
+    '  vec3 d = vec3(0.345, 0.129, 0.043);',
+    '  if (y < 0.40) return mix(a, b, y / 0.40);',
+    '  if (y < 0.75) return mix(b, c, (y - 0.40) / 0.35);',
+    '  return mix(c, d, clamp((y - 0.75) / 0.25, 0.0, 1.0));',
+    '}',
+    'float dotLamp(vec2 nxy, vec2 c, float r) {',
+    '  return 1.0 - smoothstep(r * 0.55, r, length(nxy - c));',
+    '}',
     'void main(){',
     '  vec2 p = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) / uDpr;',
+    '  vec3 amber = vec3(0.941, 0.588, 0.235);',
+    // слой под жидкостью: свечение, тень, отблеск
+    '  float ga = uGlow.w * clamp(1.0 - length(p - uGlow.xy) / uGlow.z, 0.0, 1.0);',
+    '  vec4 under = vec4(amber * ga, ga);',
+    '  float sr = length((p - uShadow.xy) / uShadow.zw);',
+    '  float sa = uShadowA.x * 0.65 * clamp(1.0 - sr, 0.0, 1.0);',
+    '  under = under * (1.0 - sa) + vec4(0.0, 0.0, 0.0, sa);',
+    '  float rr = length((p - uShadow.xy) / (uShadow.zw * vec2(0.7, 0.69)));',
+    '  float ra = uShadowA.y * 0.35 * clamp(1.0 - rr, 0.0, 1.0);',
+    '  under = under * (1.0 - ra) + vec4(vec3(0.949, 0.671, 0.333) * ra, ra);',
+    // поле метаболов и букв
     '  float f = 0.0; vec2 g = vec2(0.0);',
     '  for (int i = 0; i < 16; i++) {',
     '    if (i >= uCount) break;',
@@ -40,14 +81,15 @@
     '    f += v;',
     '    g += -2.0 * v / d2 * d;',
     '  }',
+    '  float lf = 0.0, ly = 0.0;',
     '  for (int i = 0; i < 4; i++) {',
     '    float w = uW[i];',
     '    if (w < 0.002) continue;',
     '    vec4 R = uRects[i];',
     '    vec2 uv = (p - R.xy) / R.zw;',
     '    if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) continue;',
-    '    uv.x += sin(uTime * 2.1 + uv.y * 8.0 + float(i) * 1.7) * 0.007;',
-    '    uv.y += cos(uTime * 1.7 + uv.x * 7.0 + float(i)) * 0.006;',
+    '    uv.x += sin(uTime * 2.1 + uv.y * 8.0 + float(i) * 1.7) * 0.006;',
+    '    uv.y += cos(uTime * 1.7 + uv.x * 7.0 + float(i)) * 0.005;',
     '    vec2 au = vec2((float(i) + uv.x) * 0.25, uv.y);',
     '    float h = 1.0 / 128.0;',
     '    float c  = texture2D(uAtlas, au).r;',
@@ -57,41 +99,56 @@
     '    float y0 = texture2D(uAtlas, au - vec2(0.0, h)).r;',
     '    float k = 2.1 * w;',
     '    f += c * k;',
+    '    lf += c * k; ly += c * k * uv.y;',
     '    g += vec2((x1 - x0) / (2.0 * h * R.z), (y1 - y0) / (2.0 * h * R.w)) * k;',
     '  }',
-    '  if (f < 0.25) { gl_FragColor = vec4(0.0); return; }',
-    '  float aa = max(length(g), 0.0001) * 1.1;',
-    '  float alpha = smoothstep(1.0 - aa, 1.0 + aa, f);',
-    '  float halo = smoothstep(0.25, 1.0, f) * (1.0 - alpha);',
-    '  float fi = max(f, 1.0005);',
-    '  float hgt = sqrt(1.0 - 1.0 / fi);',
-    '  vec2 gh = g / (2.0 * hgt * fi * fi + 0.0001);',
-    '  vec3 n = normalize(vec3(-gh * uR, 1.0));',
-    '  vec3 V = vec3(0.0, 0.0, 1.0);',
-    '  vec3 L = normalize(vec3(-0.55, -0.75, 0.62));',
-    '  vec3 H = normalize(L + V);',
-    '  float ndl = max(dot(n, L), 0.0);',
-    '  float nh = max(dot(n, H), 0.0);',
-    '  float spec = pow(nh, 140.0) * 1.25 + pow(nh, 22.0) * 0.16;',
-    '  float fres = pow(1.0 - clamp(n.z, 0.0, 1.0), 2.4);',
-    '  vec3 deep = vec3(0.020, 0.200, 0.155);',
-    '  vec3 mid  = vec3(0.120, 0.520, 0.405);',
-    '  vec3 lite = vec3(0.420, 0.930, 0.735);',
-    '  vec3 col = mix(lite, deep, smoothstep(0.0, 0.9, hgt));',
-    '  col = mix(col, mid, 0.32 * ndl);',
-    '  float trans = pow(max(dot(normalize(n.xy + 0.0001), -normalize(L.xy)), 0.0), 2.0) * (1.0 - hgt);',
-    '  col += lite * trans * 0.6;',
-    '  vec3 Rf = reflect(-V, n);',
-    '  float up = -Rf.y;',
-    '  float az = atan(Rf.x, Rf.z + 1.2);',
-    '  float band = exp(-pow((up - 0.6) / 0.06, 2.0));',
-    '  float bulbs = pow(max(0.0, cos(az * 11.0 + 0.6)), 30.0) * band;',
-    '  col += vec3(1.0, 0.78, 0.42) * bulbs * (0.35 + fres) * 1.1;',
-    '  col += lite * fres * 0.45;',
-    '  col += vec3(1.0) * spec;',
-    '  float a = alpha * mix(0.80, 0.97, hgt) * uAlpha;',
-    '  float ha = halo * halo * 0.30 * uAlpha;',
-    '  gl_FragColor = vec4(col * a + vec3(0.25, 0.82, 0.63) * ha, a + ha);',
+    '  vec4 liq = vec4(0.0);',
+    '  if (f > 0.2) {',
+    '    float aa = max(length(g), 0.0001) * 1.1;',
+    '    float alpha = smoothstep(1.0 - aa, 1.0 + aa, f);',
+    '    float fi = max(f, 1.0005);',
+    '    float hgt = sqrt(1.0 - 1.0 / fi);',
+    '    vec2 gh = g / (2.0 * hgt * fi * fi + 0.0001);',
+    '    vec3 n = normalize(vec3(-gh * uR, 1.0));',
+    '    if (uSph.z > 2.0) {',
+    '      vec2 q = (p - uSph.xy) / uSph.z;',
+    '      float qq = dot(q, q);',
+    '      if (qq < 1.0) {',
+    '        float ws = 1.0 - smoothstep(0.55, 0.92, sqrt(qq));',
+    '        n = normalize(mix(n, vec3(q, sqrt(1.0 - qq)), ws));',
+    '      }',
+    '    }',
+    '    vec3 L = normalize(vec3(-0.5, -0.62, 0.6));',
+    '    vec3 H = normalize(L + vec3(0.0, 0.0, 1.0));',
+    '    float dl = clamp(dot(n, L), 0.0, 1.0);',
+    '    vec3 col = amberRamp(1.0 - dl);',
+    // буквы: вертикальный градиент как в макете, поверх — свет и фаска
+    '    float wl = clamp(lf / f, 0.0, 1.0);',
+    '    if (wl > 0.01) {',
+    '      float gy = clamp((ly / max(lf, 0.0001) - 0.215) / 0.57, 0.0, 1.0);',
+    '      col = mix(col, letterRamp(gy) * (0.72 + 0.4 * dl), wl * 0.85);',
+    '    }',
+    '    float rim = pow(1.0 - clamp(n.z, 0.0, 1.0), 1.3);',
+    '    vec2 nd = normalize(n.xy + 0.0001);',
+    '    col += vec3(1.0, 0.745, 0.431) * 0.28 * max(nd.y, 0.0) * rim;',            // нижний внутренний отсвет
+    '    col += vec3(1.0) * 0.16 * max(dot(nd, vec2(-0.6, -0.8)), 0.0) * rim;',     // светлая кромка слева сверху
+    '    vec2 hb = vec2(n.x / 0.56, (n.y + 0.6) / 0.22);',
+    '    float band = (1.0 - smoothstep(0.7, 1.0, dot(hb, hb))) * clamp((-n.y - 0.38) / 0.44, 0.0, 1.0);',
+    '    col = mix(col, vec3(1.0, 0.98, 0.92), band * 0.38);',                       // мягкий верхний блик
+    '    float lamps = dotLamp(n.xy, vec2(0.12, -0.66), 0.032)',
+    '      + 0.85 * dotLamp(n.xy, vec2(0.26, -0.60), 0.027)',
+    '      + 0.65 * dotLamp(n.xy, vec2(0.40, -0.50), 0.022)',
+    '      + 0.45 * dotLamp(n.xy, vec2(0.52, -0.38), 0.017);',
+    '    lamps += 0.35 * (1.0 - smoothstep(0.0, 0.07, length(n.xy - vec2(0.12, -0.66))));',
+    '    col = mix(col, vec3(1.0, 0.98, 0.94), clamp(lamps, 0.0, 1.0));',            // отражения ламп
+    '    float spec = pow(max(dot(n, H), 0.0), 160.0);',
+    '    col = mix(col, vec3(1.0, 0.949, 0.839), clamp(spec * 1.3, 0.0, 1.0));',      // горячая точка
+    '    float a = alpha * uAlpha;',
+    '    float halo = smoothstep(0.25, 1.0, f) * (1.0 - alpha);',
+    '    float ha = halo * halo * 0.22 * uAlpha;',
+    '    liq = vec4(col * a + amber * ha * (1.0 - a), a + ha * (1.0 - a));',
+    '  }',
+    '  gl_FragColor = liq + under * (1.0 - liq.a);',
     '}'
   ].join('\n');
 
@@ -117,18 +174,18 @@
   }
 
   function makeAtlas(letters, family) {
-    var cell = 128, W = cell * 4, H = cell;
+    var W = CELL * 4, H = CELL;
     var c = document.createElement('canvas'); c.width = W; c.height = H;
     var x = c.getContext('2d');
     x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
     x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
-    x.font = '900 104px ' + family;
+    x.font = '900 ' + GLYPH + 'px ' + family;
     for (var i = 0; i < 4; i++) {
       var L = letters[i] || '';
       var m = x.measureText(L);
       var asc = m.actualBoundingBoxAscent || 73, desc = m.actualBoundingBoxDescent || 0;
       var left = m.actualBoundingBoxLeft || 0, right = m.actualBoundingBoxRight || 0;
-      x.fillText(L, i * cell + cell / 2 + (left - right) / 2, cell / 2 + (asc - desc) / 2);
+      x.fillText(L, i * CELL + CELL / 2 + (left - right) / 2, CELL / 2 + (asc - desc) / 2);
     }
     var img = x.getImageData(0, 0, W, H), d = img.data, ch = new Float32Array(W * H), k;
     for (k = 0; k < W * H; k++) ch[k] = d[k * 4] / 255;
@@ -173,7 +230,7 @@
     gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
 
     var U = {};
-    ['uRes', 'uDpr', 'uTime', 'uBalls', 'uCount', 'uAtlas', 'uRects', 'uW', 'uR', 'uAlpha'].forEach(function (n) {
+    ['uRes', 'uDpr', 'uTime', 'uBalls', 'uCount', 'uAtlas', 'uRects', 'uW', 'uR', 'uAlpha', 'uGlow', 'uShadow', 'uShadowA', 'uSph'].forEach(function (n) {
       U[n] = gl.getUniformLocation(prog, n) || gl.getUniformLocation(prog, n + '[0]');
     });
 
@@ -188,10 +245,12 @@
 
     var reduce = !!opts.reduce;
     var S = {
-      cx: 0, cy: 0, Rv: 80, Rm: 0, RmT: 0, next: 0, alpha: 0, alphaT: 1,
+      cx: 0, cy: 0, Rv: 100, Rm0: 1, Rm: 0, RmT: 0, next: 0, alpha: 0, alphaT: 1,
       main: { x: 0, y: 0, vx: 0, vy: 0 },
       sats: [], drops: [],
-      letters: [0, 1, 2, 3].map(function () { return { x: 0, y: 0, w: 1, h: 1, wt: 0, v: 0, target: 0 }; }),
+      letters: [0, 1, 2, 3].map(function () {
+        return { x: 0, y: 0, w: 1, h: 1, tx: 0, ty: 0, tw: 1, th: 1, wt: 0, v: 0, target: 0 };
+      }),
       t: 0, idle: 0
     };
     for (var s = 0; s < SATS; s++) S.sats.push({ x: 0, y: 0, vx: 0, vy: 0 });
@@ -207,28 +266,38 @@
     }
     resize();
 
-    // Позиции берутся из DOM-якорей: кнопка-сфера и 4 слота для букв
+    function cellFor(r) {
+      var size = r.height * CELL / GLYPH;
+      return { x: r.left + r.width / 2 - size / 2, y: r.top + r.height / 2 - size / 2, w: size, h: size };
+    }
+
+    // Позиции берутся из DOM-якорей: кнопка-сфера и 4 слота для букв (высота слота = кегль буквы)
     function layout(orbRect, slotRects) {
       var first = !placed;
       S.cx = orbRect.left + orbRect.width / 2;
       S.cy = orbRect.top + orbRect.height / 2;
-      S.Rv = Math.min(orbRect.width, orbRect.height) * 0.42;
-      var rm = S.Rv / Math.sqrt(1 + SATS * SAT_Q * SAT_Q);
+      S.Rv = Math.min(orbRect.width, orbRect.height) * 0.4375;
+      S.Rm0 = S.Rv / VIS;
       if (first) {
-        S.Rm = rm * 0.2; S.RmT = rm;
+        S.Rm = S.Rm0 * 0.2; S.RmT = S.Rm0;
         S.main.x = S.cx; S.main.y = S.cy;
         S.sats.forEach(function (p) { p.x = S.cx; p.y = S.cy; });
-      } else if (S.next === 0) {
-        S.RmT = rm;
+      } else if (S.RmT > 0) {
+        S.RmT = S.Rm0 * (1 - 0.13 * S.next);
       }
       slotRects.forEach(function (r, i) {
-        var size = r.height * 1.3;
-        var L = S.letters[i];
-        L.w = size; L.h = size;
-        L.x = r.left + r.width / 2 - size / 2;
-        L.y = r.top + r.height / 2 - size / 2;
+        var c = cellFor(r), L = S.letters[i];
+        L.x = L.tx = c.x; L.y = L.ty = c.y; L.w = L.tw = c.w; L.h = L.th = c.h;
       });
       placed = true;
+    }
+
+    // Плавно переносит готовые буквы в новые слоты (экран кода)
+    function moveLetters(slotRects) {
+      slotRects.forEach(function (r, i) {
+        var c = cellFor(r), L = S.letters[i];
+        L.tx = c.x; L.ty = c.y; L.tw = c.w; L.th = c.h;
+      });
     }
 
     function tap(px, py) {
@@ -245,15 +314,15 @@
         p.vy += (dy + dx * sw + (Math.random() - 0.5) * 0.8) * kick;
       });
       S.main.vx += dx * kick * 0.35; S.main.vy += dy * kick * 0.35;
-      var tx = L.x + L.w / 2, ty = L.y + L.h / 2;
+      var tx = L.tx + L.tw / 2, ty = L.ty + L.th / 2;
       var ang = Math.atan2(ty - S.cy, tx - S.cx);
       S.drops.push({
         i: i, t: 0, dur: 0.78, m: 0, phase: 'fly',
         sx: S.cx + Math.cos(ang) * S.Rm * 0.35, sy: S.cy + Math.sin(ang) * S.Rm * 0.35,
         tx: tx, ty: ty,
-        r0: S.Rm * 0.66, x: S.cx, y: S.cy, r: 0, tailX: S.cx, tailY: S.cy
+        r0: S.Rm * 0.62, x: S.cx, y: S.cy, r: 0, tailX: S.cx, tailY: S.cy
       });
-      S.RmT *= 0.9;
+      S.RmT = S.Rm0 * (1 - 0.13 * S.next);
       return i;
     }
 
@@ -317,10 +386,13 @@
         }
       }
 
+      var lk = Math.min(1, dt * 4.5);
       S.letters.forEach(function (L) {
         L.v += (-120 * (L.wt - L.target) - 10 * L.v) * dt;
         L.wt += L.v * dt;
         if (L.wt < 0) { L.wt = 0; L.v = 0; }
+        L.x += (L.tx - L.x) * lk; L.y += (L.ty - L.y) * lk;
+        L.w += (L.tw - L.w) * lk; L.h += (L.th - L.h) * lk;
       });
     }
 
@@ -341,17 +413,29 @@
         rects[i * 4] = L.x; rects[i * 4 + 1] = L.y; rects[i * 4 + 2] = L.w; rects[i * 4 + 3] = L.h;
         ws[i] = Math.max(0, L.wt);
       }
+      var ga = Math.max(0, Math.min(1, S.alpha));
+      var pres = Math.max(0, Math.min(1, S.Rm / S.Rm0));
+      var vis = S.Rm * VIS, t = S.t;
+      var br = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 / 4);
+      var sh = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 / 3.6);
+
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(U.uRes, canvas.width, canvas.height);
       gl.uniform1f(U.uDpr, dpr);
-      gl.uniform1f(U.uTime, S.t);
+      gl.uniform1f(U.uTime, t);
       gl.uniform4fv(U.uBalls, balls);
       gl.uniform1i(U.uCount, n);
       gl.uniform4fv(U.uRects, rects);
       gl.uniform1fv(U.uW, ws);
       gl.uniform1f(U.uR, Math.max(30, S.Rv));
-      gl.uniform1f(U.uAlpha, Math.max(0, Math.min(1, S.alpha)));
+      gl.uniform1f(U.uAlpha, ga);
+      gl.uniform4f(U.uGlow, S.cx, S.cy, S.Rv * 1.59, 0.26 * (0.5 + 0.35 * br) * pres * ga);
+      gl.uniform4f(U.uShadow, S.cx, S.cy + vis + 4 + 13, vis * 0.95 * (1 + 0.06 * sh), 13 * (0.6 + 0.4 * pres));
+      gl.uniform2f(U.uShadowA, (0.7 - 0.15 * sh) * pres * ga, pres * ga);
+      var q2 = SAT_Q * SAT_Q, sx = S.main.x, sy = S.main.y;
+      S.sats.forEach(function (p) { sx += p.x * q2; sy += p.y * q2; });
+      gl.uniform3f(U.uSph, sx / (1 + SATS * q2), sy / (1 + SATS * q2), vis);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
 
@@ -371,6 +455,7 @@
 
     return {
       layout: layout,
+      moveLetters: moveLetters,
       resize: resize,
       tap: tap,
       dissolve: function () { S.RmT = 0; },

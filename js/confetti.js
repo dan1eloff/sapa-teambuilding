@@ -2,7 +2,7 @@
 (function () {
   var canvas = document.getElementById('confetti');
   var ctx = canvas.getContext('2d');
-  var COLORS = ['#3fd1a0', '#2F8970', '#9be7c8', '#f0c06a', '#ffe2a3', '#ffffff'];
+  var COLORS = ['#f2ab55', '#ffe2ae', '#c2414f', '#f5ebde', '#d2852f'];
   var W = 0, H = 0, parts = [], running = false, last = 0;
 
   function resize() {

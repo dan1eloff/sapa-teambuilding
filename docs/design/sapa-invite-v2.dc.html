@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&family=Tilt+Neon&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0c0806;color:#f5ebde;font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#f2ab55;text-decoration:none}a:hover{color:#ffe2ae}
+@keyframes twinkle{0%,100%{opacity:1}45%{opacity:.8}50%{opacity:.6}55%{opacity:.92}}
+@keyframes gel{0%,100%{transform:scale(1);border-radius:50%}33%{transform:scale(1.025,.985);border-radius:52% 48% 50% 50%/48% 52% 48% 52%}66%{transform:scale(.985,1.02);border-radius:48% 52% 47% 53%/53% 47% 52% 48%}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flicker{0%,92%,94%,97%,100%{opacity:1}93%{opacity:.35}96%{opacity:.6}}
+@keyframes glint{0%{transform:translateX(-140%) skewX(-20deg)}60%,100%{transform:translateX(380%) skewX(-20deg)}}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:.4}100%{transform:translateY(-520px);opacity:0}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes breathe{0%,100%{opacity:.5}50%{opacity:.85}}
+@keyframes shadow{0%,100%{transform:scaleX(1);opacity:.7}50%{transform:scaleX(1.06);opacity:.55}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;padding:64px 72px 120px;box-sizing:border-box;background:#0c0806">
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:48px">
+    <div style="font:700 26px Montserrat;color:#f5ebde">Сапа · Виски</div>
+    <div style="font:400 14px/1.6 Inter;color:#ae9886;max-width:620px;text-wrap:pretty">Палитра «Виски», шрифты Montserrat и Inter. Изменения: гирлянда на входе выключена и загорается только на приглашении, у сферы появились тень и отражения ламп, у неона рамка-трубка, у карточек разная иерархия, кнопка подтверждения залита золотом.</div>
+  </div>
+
+  <section style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 12px Montserrat;letter-spacing:.08em;color:#ae9886">01 · Вход</div>
+      <div data-screen-label="01 Вход" style="position:relative;width:390px;height:844px;border-radius:46px;overflow:hidden;background:radial-gradient(ellipse 80% 40% at 50% 54%, rgba(222,128,56,.16), transparent 70%), radial-gradient(ellipse 100% 40% at 50% 108%, rgba(120,32,40,.5), transparent 70%), radial-gradient(circle, rgba(255,210,160,.05) 1px, transparent 1.5px) 0 0/28px 28px, #120b08;box-shadow:0 40px 120px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.06)">
+        <svg width="390" height="120" style="position:absolute;left:0;top:0"><path d="M -10 4 Q 195 104 400 4" stroke="#3a281e" stroke-width="1.5" fill="none"></path></svg>
+        <sc-for list="{{ bulbs }}" as="b" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ b.x }}px;top:{{ b.y }}px;width:8px;height:11px;border-radius:50%;background:radial-gradient(circle at 40% 30%, #5a4232, #2a1c15 70%);box-shadow:inset 0 0 0 .5px rgba(255,220,180,.12)"></div>
+        </sc-for>
+        <div style="position:absolute;left:0;right:0;top:150px;display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="font:200 40px/1 Montserrat;letter-spacing:.16em;padding-left:.16em;color:#f5ebde">САПАЛЫ</div>
+          <div style="font:900 46px/1.05 Montserrat;letter-spacing:.04em;background:linear-gradient(180deg,#ffe2ae 0%,#f2ab55 50%,#b0632a 100%);-webkit-background-clip:text;background-clip:text;color:transparent">ДЕМАЛЫС</div>
+        </div>
+        <div style="position:absolute;left:50%;top:450px;width:0;height:0">
+          <div style="position:absolute;left:-190px;top:-190px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle, rgba(240,150,60,.26), transparent 62%);animation:breathe 4s ease-in-out infinite"></div>
+          <div style="position:absolute;left:-100px;top:{{ sphere.shadowTop }}px;width:200px;height:26px;border-radius:50%;background:radial-gradient(ellipse, rgba(0,0,0,.65), transparent 70%);animation:shadow 3.6s ease-in-out infinite"></div>
+          <div style="position:absolute;left:-70px;top:{{ sphere.shadowTop }}px;width:140px;height:18px;border-radius:50%;background:radial-gradient(ellipse, rgba(242,171,85,.35), transparent 70%)"></div>
+          <div style="position:absolute;left:{{ sphere.off }}px;top:{{ sphere.off }}px;width:{{ sphere.size }}px;height:{{ sphere.size }}px;animation:gel 3.6s ease-in-out infinite;background:radial-gradient(circle at 34% 28%, #fff2d6 0 3%, #ffd086 9%, #f0a046 30%, #b55e1e 58%, #58210b 86%, #290d05 100%);box-shadow:inset -18px -26px 50px rgba(50,12,4,.75), inset 0 -10px 22px rgba(255,190,110,.28), inset 12px 16px 28px rgba(255,255,255,.16), 0 30px 80px rgba(240,150,60,.28);overflow:hidden">
+            <div style="position:absolute;left:22%;top:9%;width:56%;height:22%;border-radius:50%;background:linear-gradient(180deg, rgba(255,250,235,.38), rgba(255,250,235,0))"></div>
+            <div style="position:absolute;left:56%;top:17%;width:6px;height:6px;border-radius:50%;background:#fffaf0;box-shadow:0 0 6px #fff"></div>
+            <div style="position:absolute;left:63%;top:20%;width:5px;height:5px;border-radius:50%;background:#fff3dc;opacity:.85"></div>
+            <div style="position:absolute;left:70%;top:25%;width:4px;height:4px;border-radius:50%;background:#fff3dc;opacity:.65"></div>
+            <div style="position:absolute;left:76%;top:31%;width:3px;height:3px;border-radius:50%;background:#fff3dc;opacity:.45"></div>
+          </div>
+        </div>
+        <div style="position:absolute;left:0;right:0;top:648px;display:flex;justify-content:center;gap:18px">
+          <sc-for list="{{ gelLetters }}" as="l" hint-placeholder-count="4">
+            <div style="width:52px;text-align:center;font:900 58px/1 Montserrat;background:linear-gradient(180deg,#fff2d6 0%,#f2ab55 40%,#b55e1e 75%,#58210b 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 14px rgba(240,150,60,.3));opacity:{{ l.o }};transform:translateY({{ l.y }}px);transition:all .5s">{{ l.ch }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 12px Montserrat;letter-spacing:.08em;color:#ae9886">02 · Код — {{ codeLabel }}</div>
+      <div data-screen-label="02 Код" style="position:relative;width:390px;height:844px;border-radius:46px;overflow:hidden;background:radial-gradient(ellipse 80% 40% at 50% 46%, rgba(222,128,56,.12), transparent 70%), radial-gradient(ellipse 100% 40% at 50% 108%, rgba(120,32,40,.45), transparent 70%), radial-gradient(circle, rgba(255,210,160,.05) 1px, transparent 1.5px) 0 0/28px 28px, #100a07;box-shadow:0 40px 120px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.06)">
+        <svg width="390" height="120" style="position:absolute;left:0;top:0"><path d="M -10 4 Q 195 104 400 4" stroke="#33231b" stroke-width="1.5" fill="none"></path></svg>
+        <sc-for list="{{ bulbs }}" as="b" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ b.x }}px;top:{{ b.y }}px;width:8px;height:11px;border-radius:50%;background:radial-gradient(circle at 40% 30%, #4a3628, #221712 70%)"></div>
+        </sc-for>
+        <div style="position:absolute;left:0;right:0;bottom:112px;display:flex;justify-content:center;gap:16px;opacity:.4">
+          <sc-for list="{{ sapa }}" as="ch" hint-placeholder-count="4">
+            <div style="font:900 44px/1 Montserrat;background:linear-gradient(180deg,#fff2d6 0%,#f2ab55 40%,#b55e1e 75%,#58210b 100%);-webkit-background-clip:text;background-clip:text;color:transparent">{{ ch }}</div>
+          </sc-for>
+        </div>
+        <div style="position:absolute;left:50%;top:46%;width:338px;transform:translate(-50%,-50%);padding:1px;border-radius:30px;background:linear-gradient(160deg, rgba(255,196,120,.6), rgba(140,40,52,.45) 55%, rgba(255,196,120,.1));box-shadow:0 30px 70px rgba(0,0,0,.5)">
+          <div style="border-radius:29px;padding:36px 24px 24px;background:linear-gradient(180deg, rgba(52,28,20,.94), rgba(22,12,9,.96));display:flex;flex-direction:column;align-items:center;gap:28px">
+            <div style="font:700 22px/1.3 Montserrat;color:#f5ebde;text-align:center;text-wrap:balance">Біз ешқашан нені құрбан етпейміз?</div>
+            <div style="display:flex;gap:10px">
+              <sc-for list="{{ cells }}" as="x" hint-placeholder-count="4">
+                <div style="position:relative;width:62px;height:76px;border-radius:18px;display:flex;align-items:center;justify-content:center;font:800 30px Montserrat;background:{{ x.bg }};color:{{ x.color }};box-shadow:inset 0 0 0 1.5px {{ x.border }}, {{ x.glow }};transition:all .3s">
+                  {{ x.ch }}
+                  <sc-if value="{{ x.cursor }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;left:50%;top:24px;bottom:24px;width:2px;margin-left:-1px;border-radius:2px;background:#f2ab55;animation:blink 1s steps(1) infinite"></div>
+                  </sc-if>
+                  <div style="position:absolute;left:16px;right:16px;bottom:10px;height:2px;border-radius:2px;background:{{ x.bar }}"></div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="min-height:16px;font:500 13px Inter;color:#ffb4a5">{{ msg }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 12px Montserrat;letter-spacing:.08em;color:#ae9886">03 · Приглашение</div>
+      <div data-screen-label="03 Приглашение" style="position:relative;width:390px;border-radius:46px;overflow:hidden;background:radial-gradient(ellipse 120% 760px at 50% -100px, rgba(222,128,56,.26), transparent 70%), radial-gradient(ellipse 120% 700px at 50% 100%, rgba(120,32,40,.4), transparent 70%), radial-gradient(circle, rgba(255,210,160,.05) 1px, transparent 1.5px) 0 0/28px 28px, #120b08;box-shadow:0 40px 120px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.06);padding-bottom:36px">
+        <sc-for list="{{ bokeh }}" as="k" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ k.x }}px;top:{{ k.y }}px;width:{{ k.s }}px;height:{{ k.s }}px;border-radius:50%;background:radial-gradient(circle, rgba(242,171,85,{{ k.a }}), rgba(242,171,85,0) 70%)"></div>
+        </sc-for>
+        <div style="position:absolute;left:-40px;top:-20px;width:200px;height:640px;transform-origin:50% 0;animation:sway 9s ease-in-out infinite;background:linear-gradient(180deg, rgba(255,190,120,.2), transparent 85%);clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);mix-blend-mode:screen"></div>
+        <div style="position:absolute;right:-40px;top:-20px;width:200px;height:640px;transform-origin:50% 0;animation:sway 11s ease-in-out infinite reverse;background:linear-gradient(180deg, rgba(255,190,120,.17), transparent 85%);clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);mix-blend-mode:screen"></div>
+        <svg width="390" height="120" style="position:absolute;left:0;top:0"><path d="M -10 4 Q 195 104 400 4" stroke="#3a281e" stroke-width="1.5" fill="none"></path></svg>
+        <sc-for list="{{ bulbs }}" as="b" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ b.x }}px;top:{{ b.y }}px;width:8px;height:11px;border-radius:50%;background:radial-gradient(circle at 50% 38%, #fffaf0 0 22%, #ffe2ae 45%, #f2ab55 100%);box-shadow:0 0 10px 3px rgba(240,150,60,.4), 0 0 28px 8px rgba(240,150,60,.14);animation:twinkle 3.2s ease-in-out infinite;animation-delay:{{ b.d }}s"></div>
+        </sc-for>
+        <div style="position:absolute;right:18px;top:64px;display:flex;align-items:center;gap:10px">
+          <div style="padding:7px 12px;border-radius:999px;background:rgba(18,11,8,.7);box-shadow:inset 0 0 0 1px rgba(255,205,150,.14);font:500 12px Inter;color:#f5ebde;white-space:nowrap">♪ Just the Two of Us</div>
+          <div style="position:relative;width:54px;height:54px">
+            <div style="position:absolute;inset:0;border-radius:50%;background:repeating-radial-gradient(circle, #1c1a19 0 1px, #090808 1px 3px);box-shadow:0 6px 18px rgba(0,0,0,.5), 0 0 0 1px rgba(255,205,150,.14);animation:spin 3.2s linear infinite">
+              <div style="position:absolute;left:18px;top:18px;width:18px;height:18px;border-radius:50%;background:#8c2a38;display:flex;align-items:center;justify-content:center"><div style="width:4px;height:4px;border-radius:50%;background:#090808"></div></div>
+            </div>
+            <div style="position:absolute;right:-4px;top:-6px;width:3px;height:34px;border-radius:2px;background:linear-gradient(#ffe2ae,#b0632a);transform:rotate(28deg);transform-origin:50% 0"></div>
+          </div>
+        </div>
+        <sc-for list="{{ notes }}" as="n" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ n.x }}px;top:{{ n.y }}px;font:400 {{ n.s }}px serif;color:#f2ab55;opacity:0;animation:rise {{ n.t }}s linear infinite;animation-delay:{{ n.d }}s">{{ n.ch }}</div>
+        </sc-for>
+
+        <div style="position:relative;padding:150px 28px 0;display:flex;flex-direction:column;align-items:center">
+          <div style="position:relative;padding:22px 26px 18px;border-radius:26px;box-shadow:0 0 0 2px #ff8a7a, 0 0 8px 1px #e0485c, 0 0 26px rgba(214,69,90,.55), inset 0 0 8px rgba(224,72,92,.6), inset 0 0 30px rgba(214,69,90,.22);background:rgba(18,8,6,.35);display:flex;flex-direction:column;align-items:center;animation:flicker 13s 4s infinite">
+            <div style="font:400 88px/0.95 'Tilt Neon',sans-serif;letter-spacing:.06em;color:#ffe6e4;text-shadow:0 0 3px #fff, 0 0 10px #ff7a8a, 0 0 22px #d6455a, 0 0 46px rgba(214,52,72,.6), 0 0 90px rgba(214,52,72,.5);animation:flicker 7s infinite">TEAM</div>
+            <div style="font:400 47px/1.1 'Tilt Neon',sans-serif;letter-spacing:.08em;color:#fff4dc;text-shadow:0 0 3px #fff, 0 0 10px #ffe2ae, 0 0 22px #f2ab55, 0 0 46px #b0632a, 0 0 90px rgba(176,99,42,.7);animation:flicker 11s 2s infinite">BUILDING</div>
+          </div>
+          <div style="margin-top:28px;font:600 17px/1.4 Montserrat;color:#f5ebde;text-align:center;text-wrap:balance">Сапа командасы, сенбіде кездесеміз!</div>
+        </div>
+
+        <div style="position:relative;margin:48px 24px 0;display:flex;flex-direction:column;align-items:center;gap:14px">
+          <div style="font:700 10px Montserrat;letter-spacing:.24em;padding-left:.24em;color:#eaa75e">БАСТАЛУЫНА ҚАЛДЫ</div>
+          <div style="display:flex;align-items:flex-start;justify-content:center;gap:6px;width:100%">
+            <sc-for list="{{ countdown }}" as="u" hint-placeholder-count="4">
+              <div style="display:flex;align-items:flex-start;gap:6px">
+                <sc-if value="{{ u.sep }}" hint-placeholder-val="{{ false }}">
+                  <div style="font:300 36px/1 Montserrat;color:rgba(242,171,85,.45)">:</div>
+                </sc-if>
+                <div style="width:64px;display:flex;flex-direction:column;align-items:center;gap:8px">
+                  <div style="font:600 40px/1 Montserrat;font-variant-numeric:tabular-nums;color:#f5ebde">{{ u.v }}</div>
+                  <div style="font:600 9px Montserrat;letter-spacing:.16em;color:#ae9886">{{ u.l }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="position:relative;margin:40px 20px 0;display:flex;flex-direction:column;gap:10px">
+          <div style="position:relative;border-radius:28px;padding:1px;background:linear-gradient(180deg, rgba(255,205,140,.5), rgba(255,205,140,.08) 60%);box-shadow:0 18px 50px rgba(0,0,0,.4)">
+            <div style="border-radius:27px;padding:22px 22px 20px;background:radial-gradient(ellipse 90% 80% at 50% 0%, rgba(242,171,85,.16), transparent 70%), linear-gradient(180deg, #2e1a12, #1a0f0b);display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="font:700 10px Montserrat;letter-spacing:.24em;color:#eaa75e">КҮНІ</div>
+                <div style="font:900 27px/1 Montserrat;white-space:nowrap;background:linear-gradient(180deg,#ffe2ae 0%,#f2ab55 55%,#c27432 100%);-webkit-background-clip:text;background-clip:text;color:transparent">28 қараша</div>
+                <div style="font:500 13px Inter;color:#ae9886">сенбі</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;padding-left:16px;border-left:1px solid rgba(255,205,150,.14)">
+                <div style="font:700 10px Montserrat;letter-spacing:.24em;color:#eaa75e">УАҚЫТЫ</div>
+                <div style="font:900 27px/1 Montserrat;white-space:nowrap;background:linear-gradient(180deg,#ffe2ae 0%,#f2ab55 55%,#c27432 100%);-webkit-background-clip:text;background-clip:text;color:transparent">17:00</div>
+                <div style="font:500 13px Inter;color:#ae9886">басталуы</div>
+              </div>
+            </div>
+          </div>
+          <div style="border-radius:28px;padding:22px;background:linear-gradient(180deg, rgba(52,28,20,.72), rgba(24,13,10,.72));box-shadow:inset 0 0 0 1px rgba(255,205,150,.13), 0 18px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:8px">
+            <div style="font:700 10px Montserrat;letter-spacing:.24em;color:#eaa75e">МЕКЕНЖАЙ</div>
+            <div style="font:800 22px/1.1 Montserrat;color:#f5ebde">Shattyq House</div>
+            <div style="font:400 14px/1.45 Inter;color:#ae9886">Қаскелең, Райымбек көшесі, 155</div>
+            <a href="#" style="margin-top:10px;display:flex;align-items:center;justify-content:center;height:48px;border-radius:999px;color:#f2ab55;background:rgba(242,171,85,.08);box-shadow:inset 0 0 0 1.5px rgba(242,171,85,.7);font:700 13px Montserrat;letter-spacing:.04em" style-hover="background:rgba(242,171,85,.16);color:#ffe2ae">2GIS-те ашу</a>
+          </div>
+          <div style="border-radius:28px;padding:18px 22px;background:linear-gradient(180deg, rgba(52,28,20,.5), rgba(24,13,10,.5));box-shadow:inset 0 0 0 1px rgba(255,205,150,.1);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font:700 10px Montserrat;letter-spacing:.24em;color:#eaa75e">ДРЕСС-КОД</div>
+              <div style="font:800 18px/1.1 Montserrat;color:#f5ebde">Еркін стиль</div>
+            </div>
+            <div style="font:400 13px Inter;color:#ae9886">Өзіңе ыңғайлы киін</div>
+          </div>
+        </div>
+
+        <div style="position:relative;margin-top:52px;display:flex;flex-direction:column;gap:16px">
+          <div style="margin:0 24px;display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font:700 10px Montserrat;letter-spacing:.24em;color:#eaa75e">БІЗ ДЕМАЛАТЫН ОРЫН</div>
+            <div style="font:600 12px Montserrat;font-variant-numeric:tabular-nums;color:#ae9886">{{ slideNum }} / 08</div>
+          </div>
+          <div onScroll="{{ onGallery }}" style="display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 24px;scroll-padding:0 24px;scrollbar-width:none">
+            <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="2">
+              <div style="flex:0 0 300px;scroll-snap-align:start;display:flex;flex-direction:column;gap:12px">
+                <div style="position:relative;width:300px;height:375px;border-radius:22px;overflow:hidden;background:repeating-linear-gradient(135deg, rgba(255,220,180,.05) 0 10px, rgba(255,220,180,.015) 10px 20px), #2a170f;box-shadow:inset 0 0 0 1px rgba(255,205,150,.12), 0 18px 40px rgba(0,0,0,.35)">
+                  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 90% 60% at 50% 0%, rgba(242,171,85,.14), transparent 70%)"></div>
+                  <div style="position:absolute;left:16px;top:16px;font:400 11px 'JetBrains Mono',monospace;color:#8f7867">фото {{ g.n }}</div>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:10px;padding-left:4px">
+                  <div style="font:600 12px Montserrat;color:#eaa75e;font-variant-numeric:tabular-nums">{{ g.n }}</div>
+                  <div style="font:700 16px Montserrat;color:#f5ebde">{{ g.t }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;justify-content:center;gap:6px">
+            <sc-for list="{{ dots }}" as="d" hint-placeholder-count="8">
+              <div style="height:5px;border-radius:3px;width:{{ d.w }}px;background:{{ d.c }};transition:all .3s"></div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="position:relative;margin:52px 20px 0">
+          <a href="#" style="position:relative;display:flex;align-items:center;justify-content:center;height:62px;border-radius:999px;overflow:hidden;background:linear-gradient(180deg,#ffd38c 0%,#f2ab55 55%,#d2852f 100%);color:#2a1209;box-shadow:0 14px 40px rgba(240,150,60,.35), inset 0 1px 0 rgba(255,245,220,.7), inset 0 -2px 0 rgba(120,50,10,.25);font:800 14px Montserrat;letter-spacing:.16em" style-hover="color:#2a1209;filter:brightness(1.06)">
+            <div style="position:absolute;top:0;bottom:0;left:0;width:28%;background:linear-gradient(90deg, transparent, rgba(255,252,240,.6), transparent);animation:glint 4s ease-in-out infinite"></div>
+            <div style="position:relative">ҚАТЫСУДЫ РАСТАУ</div>
+          </a>
+        </div>
+        <div style="position:relative;margin-top:36px;text-align:center;font:600 13px Montserrat;letter-spacing:.3em;padding-left:.3em;color:#8f7867">28 · 11 · 2026</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 12px Montserrat;letter-spacing:.08em;color:#ae9886">04 · Финал</div>
+      <div data-screen-label="04 Финал" style="position:relative;width:390px;height:844px;border-radius:46px;overflow:hidden;background:radial-gradient(ellipse 100% 55% at 50% 28%, rgba(222,128,56,.24), transparent 65%), radial-gradient(ellipse 100% 40% at 50% 108%, rgba(120,32,40,.5), transparent 70%), #120b08;box-shadow:0 40px 120px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.06)">
+        <svg width="390" height="120" style="position:absolute;left:0;top:0"><path d="M -10 4 Q 195 104 400 4" stroke="#3a281e" stroke-width="1.5" fill="none"></path></svg>
+        <sc-for list="{{ bulbs }}" as="b" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ b.x }}px;top:{{ b.y }}px;width:8px;height:11px;border-radius:50%;background:radial-gradient(circle at 50% 38%, #fffaf0 0 22%, #ffe2ae 45%, #f2ab55 100%);box-shadow:0 0 10px 3px rgba(240,150,60,.4);animation:twinkle 3.2s ease-in-out infinite;animation-delay:{{ b.d }}s"></div>
+        </sc-for>
+        <sc-for list="{{ confetti }}" as="k" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ k.x }}px;top:{{ k.y }}px;width:{{ k.w }}px;height:{{ k.h }}px;border-radius:1px;background:{{ k.c }};transform:rotate({{ k.r }}deg);opacity:.85"></div>
+        </sc-for>
+        <div style="position:absolute;left:50%;top:126px;width:260px;height:260px;margin-left:-130px">
+          <div style="position:absolute;inset:0;border-radius:50%;background:repeating-radial-gradient(circle, #1c1a19 0 1px, #090808 1px 3.2px);box-shadow:0 30px 70px rgba(0,0,0,.6), 0 0 0 1px rgba(255,205,150,.12), 0 0 90px rgba(240,150,60,.22);animation:spin 4s linear infinite">
+            <div style="position:absolute;left:80px;top:80px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle, #9a3040, #6e1c28);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+              <div style="font:800 20px/1 Montserrat;color:#ffe2ae">28.11</div>
+              <div style="width:5px;height:5px;border-radius:50%;background:#090808;margin:3px 0"></div>
+              <div style="font:600 11px Montserrat;letter-spacing:.14em;color:#ffe2ae">17:00</div>
+            </div>
+          </div>
+          <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 20deg, transparent 0 18%, rgba(255,220,170,.10) 24%, transparent 30% 68%, rgba(255,220,170,.08) 74%, transparent 80%);pointer-events:none"></div>
+          <div style="position:absolute;right:-18px;top:-12px;width:4px;height:146px;border-radius:2px;background:linear-gradient(#ffe2ae,#b0632a);transform:rotate(24deg);transform-origin:50% 0"></div>
+        </div>
+        <div style="position:absolute;left:0;right:0;top:430px;display:flex;flex-direction:column;align-items:center;gap:22px;padding:0 20px">
+          <div style="font:900 40px/1.05 Montserrat;background:linear-gradient(180deg,#ffe2ae 0%,#f2ab55 50%,#b0632a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center">СЕНІ КҮТЕМІЗ!</div>
+          <div style="width:100%;box-sizing:border-box;border-radius:28px;background:linear-gradient(180deg, rgba(52,28,20,.8), rgba(24,13,10,.8));box-shadow:inset 0 0 0 1px rgba(255,205,150,.13), 0 18px 50px rgba(0,0,0,.35);padding:22px;display:flex;flex-direction:column;gap:6px">
+            <div style="font:800 19px/1.2 Montserrat;color:#f5ebde">28 қараша, сенбі · 17:00</div>
+            <div style="font:400 14px/1.5 Inter;color:#ae9886">Shattyq House, Қаскелең, Райымбек көшесі, 155</div>
+            <a href="#" style="margin-top:12px;display:flex;align-items:center;justify-content:center;height:48px;border-radius:999px;color:#f2ab55;background:rgba(242,171,85,.08);box-shadow:inset 0 0 0 1.5px rgba(242,171,85,.7);font:700 13px Montserrat">2GIS-те ашу</a>
+          </div>
+          <a href="#" style="font:600 13px Montserrat;color:#ae9886;padding:12px" style-hover="color:#f5ebde">Басына қайту</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font:600 12px Montserrat;letter-spacing:.08em;color:#ae9886">05 · Превью в Telegram, 1200×630</div>
+      <div data-screen-label="05 Превью" style="position:relative;width:1200px;height:630px;border-radius:20px;overflow:hidden;background:radial-gradient(ellipse 70% 90% at 30% -10%, rgba(222,128,56,.28), transparent 65%), radial-gradient(ellipse 60% 70% at 80% 110%, rgba(120,32,40,.5), transparent 70%), radial-gradient(circle, rgba(255,210,160,.05) 1.5px, transparent 2px) 0 0/36px 36px, #120b08;box-shadow:0 40px 120px rgba(0,0,0,.6)">
+        <svg width="1200" height="160" style="position:absolute;left:0;top:0"><path d="M -10 6 Q 600 150 1210 6" stroke="#3a281e" stroke-width="2" fill="none"></path></svg>
+        <sc-for list="{{ ogBulbs }}" as="b" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ b.x }}px;top:{{ b.y }}px;width:12px;height:16px;border-radius:50%;background:radial-gradient(circle at 50% 38%, #fffaf0 0 22%, #ffe2ae 45%, #f2ab55 100%);box-shadow:0 0 14px 4px rgba(240,150,60,.42), 0 0 40px 10px rgba(240,150,60,.14)"></div>
+        </sc-for>
+        <div style="position:absolute;left:96px;top:170px;display:flex;flex-direction:column;align-items:flex-start;gap:30px">
+          <div style="padding:26px 34px 20px;border-radius:34px;box-shadow:0 0 0 3px #ff8a7a, 0 0 10px 1px #e0485c, 0 0 36px rgba(214,69,90,.55), inset 0 0 10px rgba(224,72,92,.6), inset 0 0 40px rgba(214,69,90,.2);display:flex;flex-direction:column;align-items:center">
+            <div style="font:400 132px/0.92 'Tilt Neon',sans-serif;letter-spacing:.06em;color:#ffe6e4;text-shadow:0 0 4px #fff, 0 0 14px #ff7a8a, 0 0 30px #d6455a, 0 0 64px rgba(214,52,72,.6), 0 0 120px rgba(214,52,72,.5)">TEAM</div>
+            <div style="font:400 71px/1.1 'Tilt Neon',sans-serif;letter-spacing:.08em;color:#fff4dc;text-shadow:0 0 4px #fff, 0 0 14px #ffe2ae, 0 0 30px #f2ab55, 0 0 64px #b0632a, 0 0 120px rgba(176,99,42,.7)">BUILDING</div>
+          </div>
+          <div style="font:700 34px Montserrat;color:#f5ebde">Сапа · 28 қараша · 17:00</div>
+        </div>
+        <div style="position:absolute;right:110px;top:150px;width:330px;height:330px;border-radius:50%;background:repeating-radial-gradient(circle, #1c1a19 0 1px, #090808 1px 3.2px);box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,205,150,.12), 0 0 120px rgba(240,150,60,.24)">
+          <div style="position:absolute;left:105px;top:105px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle, #9a3040, #6e1c28);display:flex;align-items:center;justify-content:center;font:900 26px Montserrat;letter-spacing:.06em;color:#ffe2ae">САПА</div>
+          <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 20deg, transparent 0 18%, rgba(255,220,170,.10) 24%, transparent 30% 68%, rgba(255,220,170,.08) 74%, transparent 80%)"></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;letters&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:2,&quot;min&quot;:0,&quot;max&quot;:4,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Состояния&quot;},&quot;codeState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;typing&quot;,&quot;options&quot;:[&quot;typing&quot;,&quot;wrong&quot;,&quot;ok&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Состояния&quot;}}">
+class Component extends DCLogic {
+  state = { now: Date.now(), slide: 0 };
+  componentDidMount() { this.t = setInterval(() => this.setState({ now: Date.now() }), 1000); }
+  componentWillUnmount() { clearInterval(this.t); }
+  swag(n, w, sag, top, half) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const t = (i + 0.5) / n, x0 = -10, x2 = w + 10, x1 = w / 2;
+      const x = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * x1 + t * t * x2;
+      const y = (1 - t) ** 2 * top + 2 * (1 - t) * t * (top + sag) + t * t * top;
+      out.push({ x: Math.round(x - half), y: Math.round(y + 1), d: ((i * 0.37) % 2.4).toFixed(2) });
+    }
+    return out;
+  }
+  renderVals() {
+    const letters = Math.max(0, Math.min(4, this.props.letters ?? 2));
+    const st = this.props.codeState ?? 'typing';
+    const size = Math.round(210 * (1 - 0.13 * letters));
+    const typed = st === 'typing' ? ['С', 'А', '', ''] : st === 'wrong' ? ['Қ', 'А', 'Ң', 'А'] : ['С', 'А', 'П', 'А'];
+    const cells = typed.map((ch, i) => {
+      if (st === 'wrong') return { ch, bg: 'rgba(255,143,122,.08)', color: '#ffb4a5', border: '#ff8f7a', glow: '0 0 0 0 transparent', cursor: false, bar: 'transparent' };
+      if (st === 'ok') return { ch, bg: 'linear-gradient(180deg,#ffd38c,#e3953f)', color: '#2a1209', border: '#ffe2ae', glow: '0 0 22px rgba(240,150,60,.45)', cursor: false, bar: 'transparent' };
+      const a = i === 2;
+      return { ch, bg: a ? 'rgba(242,171,85,.08)' : 'rgba(255,235,210,.04)', color: '#f5ebde', border: a ? '#f2ab55' : 'rgba(255,205,150,.16)', glow: a ? '0 0 20px rgba(240,150,60,.35)' : '0 0 0 0 transparent', cursor: a, bar: ch ? 'rgba(242,171,85,.5)' : 'rgba(255,205,150,.14)' };
+    });
+    const target = new Date('2026-11-28T17:00:00+05:00').getTime();
+    const s = Math.max(0, Math.floor((target - this.state.now) / 1000));
+    const pad = v => String(v).padStart(2, '0');
+    const countdown = [[Math.floor(s / 86400), 'КҮН'], [Math.floor(s % 86400 / 3600), 'САҒАТ'], [Math.floor(s % 3600 / 60), 'МИНУТ'], [s % 60, 'СЕКУНД']].map(([v, l], i) => ({ v: pad(v), l, sep: i > 0 }));
+    const names = ['Вилла', 'Ашық алаң', '50 адамдық зал', 'Демалыс бөлмесі', 'Бильярд пен теннис', 'Қонақ залы', 'Ас үй', 'Жатын бөлме'];
+    const cc = ['#f2ab55', '#ffe2ae', '#c2414f', '#f5ebde'];
+    const confetti = Array.from({ length: 26 }, (_, i) => {
+      const r = (Math.sin(i * 12.9898) * 43758.5453) % 1, r2 = (Math.sin(i * 78.233) * 12345.678) % 1;
+      return { x: Math.round(Math.abs(r) * 370), y: 110 + Math.round(Math.abs(r2) * 720), w: 4 + (i % 3) * 2, h: 9 + (i % 2) * 4, r: Math.round(r * 180), c: cc[i % 4] };
+    }).filter(k => !(k.y > 400 && k.y < 760 && k.x > 10 && k.x < 370) && !(k.y > 110 && k.y < 400 && k.x > 50 && k.x < 340));
+    return {
+      bulbs: this.swag(19, 390, 100, 4, 4),
+      ogBulbs: this.swag(26, 1200, 144, 6, 6),
+      sphere: { size, off: -size / 2, shadowTop: Math.round(size / 2 + 4) },
+      sapa: ['С', 'А', 'П', 'А'],
+      gelLetters: ['С', 'А', 'П', 'А'].map((ch, i) => ({ ch, o: i < letters ? 1 : 0, y: i < letters ? 0 : -40 })),
+      cells,
+      codeLabel: st === 'typing' ? 'ввод' : st === 'wrong' ? 'ошибка' : 'верно',
+      msg: st === 'wrong' ? 'Қате, тағы байқап көр' : '',
+      countdown,
+      bokeh: [{ x: -30, y: 520, s: 120, a: .10 }, { x: 300, y: 760, s: 90, a: .08 }, { x: 40, y: 1240, s: 70, a: .07 }, { x: 290, y: 1500, s: 140, a: .07 }, { x: -20, y: 1900, s: 110, a: .06 }],
+      gallery: names.map((t, i) => ({ t, n: pad(i + 1) })),
+      dots: names.map((_, i) => ({ w: i === this.state.slide ? 18 : 5, c: i === this.state.slide ? '#f2ab55' : 'rgba(255,205,150,.22)' })),
+      notes: [{ x: 40, y: 900, s: 22, t: 14, d: 0, ch: '♪' }, { x: 320, y: 1100, s: 18, t: 16, d: 3, ch: '♫' }, { x: 120, y: 1400, s: 20, t: 12, d: 6, ch: '♪' }, { x: 290, y: 700, s: 16, t: 15, d: 8, ch: '♩' }, { x: 60, y: 1800, s: 18, t: 13, d: 2, ch: '♫' }],
+      confetti,
+      slideNum: pad(this.state.slide + 1),
+      onGallery: e => { const i = Math.round(e.currentTarget.scrollLeft / 312); if (i !== this.state.slide) this.setState({ slide: Math.min(7, i) }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
