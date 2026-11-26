@@ -1,0 +1,132 @@
+/*
+ * Палитры. Включаются атрибутом <html data-palette="…"> (ссылка ?palette=whisky|emerald|midnight|wine|noir).
+ * Все цвета сайта, сферы (шейдер читает --sph-*), гирлянды и конфетти берутся отсюда.
+ * Переменные с суффиксом -rgb — это «r,g,b» для rgba(var(--x-rgb), alpha).
+ */
+
+/* ---------- Виски: янтарь, коньячный фон, бордо ---------- */
+:root, [data-palette="whisky"] {
+  --bg: #120b08; --bg-2: #100a07;
+  --ink: #f5ebde; --muted: #ae9886; --faint: #8f7867; --label: #eaa75e;
+  --gold: #f2ab55; --gold-hi: #ffe2ae; --gold-deep: #b0632a; --gold-mid: #c27432; --accent-rgb: 242,171,85;
+  --cta-1: #ffd38c; --cta-2: #e3953f; --cta-3: #d2852f; --cta-ink: #2a1209; --cta-shade-rgb: 120,50,10; --cta-gloss-rgb: 255,245,220;
+  --glow-rgb: 222,128,56; --low-rgb: 120,32,40; --dots-rgb: 255,210,160; --edge-rgb: 9,5,3; --panel-rgb: 18,10,7;
+  --card-rgb: 52,28,20; --card2-rgb: 24,13,10; --cw1: #2e1a12; --cw2: #1a0f0b;
+  --ring-rgb: 255,205,150; --spot-rgb: 255,190,120; --halo-rgb: 240,150,60;
+  --second: #8c2a38; --second-1: #9a3040; --second-2: #6e1c28; --second-rgb: 140,40,52;
+  --seal-hi: #d0505e; --seal-lo: #4a1018; --seal-drip: #b23a49; --seal-ring-rgb: 255,180,170; --seal-shadow-rgb: 40,6,10; --seal-text-rgb: 255,215,205;
+  --tube-1: #ff8a7a; --tube-2: #e0485c; --tube-rgb: 214,69,90; --neon-off-rgb: 255,230,228;
+  --na: #ffe6e4; --na-1: #ff7a8a; --na-2: #d6455a; --na-rgb: 214,52,72;
+  --nb: #fff4dc; --nb-rgb: 176,99,42;
+  --sph-0: #fff2d6; --sph-1: #ffd086; --sph-2: #f0a046; --sph-3: #b55e1e; --sph-4: #58210b; --sph-5: #290d05;
+  --sph-shadow-rgb: 50,12,4; --sph-inner-rgb: 255,190,110; --sph-glow-rgb: 240,150,60; --let-1: #f2ab55;
+  --wire: #3a281e; --wire-dim: #33231b; --bulb-off-1: #5a4232; --bulb-off-2: #2a1c15;
+  --bulb-hi: #fffaf0; --bulb-mid: #ffe2ae; --bulb-lo: #f2ab55; --halo: #f0963c;
+  --rope: #4a2f1f; --rope-twist: #a0724a; --hook-stroke: #6b4a2a;
+  --confetti: #f2ab55,#ffe2ae,#c2414f,#f5ebde,#d2852f;
+  --sparks: #ffe2ae,#f2ab55,#fff4dc,#ff8a7a;
+  --seal-parts: #9a3040,#6e1c28,#c2414f;
+}
+
+/* ---------- Изумруд: фирменный зелёный Сапа и золото ---------- */
+[data-palette="emerald"] {
+  --bg: #06110d; --bg-2: #050e0b;
+  --ink: #eef7f3; --muted: #8fa99f; --faint: #627a71; --label: #e2b866;
+  --gold: #f0c06a; --gold-hi: #ffe7b3; --gold-deep: #b8862f; --gold-mid: #c99a45; --accent-rgb: 240,192,106;
+  --cta-1: #ffe0a0; --cta-2: #e6ac4c; --cta-3: #c9913a; --cta-ink: #1d1406; --cta-shade-rgb: 100,70,10; --cta-gloss-rgb: 255,248,225;
+  --glow-rgb: 47,160,120; --low-rgb: 8,70,52; --dots-rgb: 155,231,200; --edge-rgb: 2,8,6; --panel-rgb: 6,16,12;
+  --card-rgb: 18,48,38; --card2-rgb: 7,22,17; --cw1: #123326; --cw2: #0a1a14;
+  --ring-rgb: 155,231,200; --spot-rgb: 255,225,160; --halo-rgb: 240,180,80;
+  --second: #1f7a5e; --second-1: #2a8f6e; --second-2: #145a44; --second-rgb: 40,140,105;
+  --seal-hi: #3fae86; --seal-lo: #0d3a2b; --seal-drip: #2a8f6e; --seal-ring-rgb: 190,255,225; --seal-shadow-rgb: 2,20,14; --seal-text-rgb: 225,255,240;
+  --tube-1: #7ff0c8; --tube-2: #2fcf98; --tube-rgb: 40,200,150; --neon-off-rgb: 220,255,240;
+  --na: #effff8; --na-1: #8ff5d0; --na-2: #2fcf98; --na-rgb: 30,190,140;
+  --nb: #fff4dc; --nb-rgb: 184,134,47;
+  --sph-0: #effff8; --sph-1: #a6f2d4; --sph-2: #46cf9f; --sph-3: #1d8a68; --sph-4: #0b3f30; --sph-5: #041a12;
+  --sph-shadow-rgb: 2,25,18; --sph-inner-rgb: 140,255,210; --sph-glow-rgb: 63,209,160; --let-1: #5fe0b4;
+  --wire: #1d2e28; --wire-dim: #18261f; --bulb-off-1: #3a4a40; --bulb-off-2: #18221d;
+  --bulb-hi: #fffaf0; --bulb-mid: #ffe7b3; --bulb-lo: #f0c06a; --halo: #f0b860;
+  --rope: #23372f; --rope-twist: #5f8a76; --hook-stroke: #2a4a3c;
+  --confetti: #3fd1a0,#2F8970,#f0c06a,#ffe7b3,#eef7f3;
+  --sparks: #ffe7b3,#f0c06a,#effff8,#7ff0c8;
+  --seal-parts: #2a8f6e,#145a44,#3fae86;
+}
+
+/* ---------- Полночь: тёмно-синий и латунь, как джазовые пластинки ---------- */
+[data-palette="midnight"] {
+  --bg: #070a16; --bg-2: #060812;
+  --ink: #eef1fa; --muted: #8f99b8; --faint: #5e6787; --label: #e3bd78;
+  --gold: #e8c27a; --gold-hi: #fbe9c4; --gold-deep: #a47b3c; --gold-mid: #c29a55; --accent-rgb: 232,194,122;
+  --cta-1: #fbe2ad; --cta-2: #dcb06a; --cta-3: #c09650; --cta-ink: #14100a; --cta-shade-rgb: 90,60,20; --cta-gloss-rgb: 255,250,235;
+  --glow-rgb: 70,100,230; --low-rgb: 60,30,120; --dots-rgb: 170,190,255; --edge-rgb: 3,4,10; --panel-rgb: 8,11,24;
+  --card-rgb: 24,32,64; --card2-rgb: 10,14,32; --cw1: #18224a; --cw2: #0c1230;
+  --ring-rgb: 170,190,255; --spot-rgb: 200,215,255; --halo-rgb: 232,194,122;
+  --second: #1f2f75; --second-1: #2a3f99; --second-2: #141f52; --second-rgb: 60,90,200;
+  --seal-hi: #4f6fe0; --seal-lo: #0e1640; --seal-drip: #2f4ab8; --seal-ring-rgb: 190,205,255; --seal-shadow-rgb: 4,8,30; --seal-text-rgb: 225,232,255;
+  --tube-1: #8fb8ff; --tube-2: #3d6cf0; --tube-rgb: 60,110,240; --neon-off-rgb: 225,235,255;
+  --na: #eef5ff; --na-1: #9cc0ff; --na-2: #3d6cf0; --na-rgb: 50,100,235;
+  --nb: #fff4dc; --nb-rgb: 164,123,60;
+  --sph-0: #f2f6ff; --sph-1: #b3c8ff; --sph-2: #6a8ef2; --sph-3: #2f4fbf; --sph-4: #131f5e; --sph-5: #070b26;
+  --sph-shadow-rgb: 4,8,30; --sph-inner-rgb: 150,190,255; --sph-glow-rgb: 90,130,255; --let-1: #8fb0ff;
+  --wire: #1c2238; --wire-dim: #171c2e; --bulb-off-1: #3a4260; --bulb-off-2: #181c2c;
+  --bulb-hi: #fffaf0; --bulb-mid: #fbe9c4; --bulb-lo: #e8c27a; --halo: #f0c070;
+  --rope: #2a2f45; --rope-twist: #7a84a8; --hook-stroke: #3a4060;
+  --confetti: #e8c27a,#fbe9c4,#6a8ef2,#eef1fa,#3d6cf0;
+  --sparks: #fbe9c4,#e8c27a,#eef5ff,#8fb8ff;
+  --seal-parts: #2a3f99,#141f52,#4f6fe0;
+}
+
+/* ---------- Бордо: винный и розовое золото ---------- */
+[data-palette="wine"] {
+  --bg: #13060a; --bg-2: #110509;
+  --ink: #f8eaee; --muted: #b9959f; --faint: #8a6670; --label: #f3ae9c;
+  --gold: #f2b28c; --gold-hi: #ffdcc8; --gold-deep: #b26a4c; --gold-mid: #cf8a68; --accent-rgb: 242,178,140;
+  --cta-1: #ffd2bb; --cta-2: #e89a78; --cta-3: #d08462; --cta-ink: #2a0d0d; --cta-shade-rgb: 110,40,30; --cta-gloss-rgb: 255,240,232;
+  --glow-rgb: 200,50,90; --low-rgb: 90,20,70; --dots-rgb: 255,190,205; --edge-rgb: 8,2,4; --panel-rgb: 20,7,11;
+  --card-rgb: 56,18,28; --card2-rgb: 26,8,13; --cw1: #3a1420; --cw2: #1e0910;
+  --ring-rgb: 255,185,200; --spot-rgb: 255,200,210; --halo-rgb: 242,140,120;
+  --second: #5e1226; --second-1: #7a1a30; --second-2: #45091a; --second-rgb: 150,40,70;
+  --seal-hi: #b8344e; --seal-lo: #3a0612; --seal-drip: #8a1e36; --seal-ring-rgb: 255,190,200; --seal-shadow-rgb: 30,2,8; --seal-text-rgb: 255,220,225;
+  --tube-1: #ff9ac4; --tube-2: #e0487c; --tube-rgb: 220,60,120; --neon-off-rgb: 255,230,240;
+  --na: #ffe8f2; --na-1: #ff8ab8; --na-2: #e0487c; --na-rgb: 214,52,110;
+  --nb: #fff0e6; --nb-rgb: 178,106,76;
+  --sph-0: #fff0f3; --sph-1: #f4a0b1; --sph-2: #c93a5b; --sph-3: #85142e; --sph-4: #3f0716; --sph-5: #1a0206;
+  --sph-shadow-rgb: 30,2,8; --sph-inner-rgb: 255,140,165; --sph-glow-rgb: 210,55,95; --let-1: #dc5470;
+  --wire: #36161e; --wire-dim: #2c1218; --bulb-off-1: #553038; --bulb-off-2: #241015;
+  --bulb-hi: #fffaf0; --bulb-mid: #ffe2cc; --bulb-lo: #f2b28c; --halo: #f0a070;
+  --rope: #3e1a22; --rope-twist: #9a6470; --hook-stroke: #5a2a34;
+  --confetti: #f2b28c,#ffdcc8,#e0487c,#f8eaee,#a01e3e;
+  --sparks: #ffdcc8,#f2b28c,#fff0e6,#ff9ac4;
+  --seal-parts: #7a1a30,#45091a,#b8344e;
+}
+
+/* ---------- Нуар: чёрный, шампань и жидкое серебро ---------- */
+[data-palette="noir"] {
+  --bg: #0b0b0c; --bg-2: #09090a;
+  --ink: #f4f1ea; --muted: #a19d94; --faint: #6e6b65; --label: #d8c49b;
+  --gold: #e6d0a2; --gold-hi: #fff4da; --gold-deep: #9e8655; --gold-mid: #bfa676; --accent-rgb: 230,208,162;
+  --cta-1: #fbeccb; --cta-2: #dcc391; --cta-3: #c4aa76; --cta-ink: #17140e; --cta-shade-rgb: 80,65,30; --cta-gloss-rgb: 255,252,240;
+  --glow-rgb: 230,215,180; --low-rgb: 40,40,48; --dots-rgb: 255,248,230; --edge-rgb: 3,3,4; --panel-rgb: 14,14,15;
+  --card-rgb: 32,31,30; --card2-rgb: 16,16,16; --cw1: #24221f; --cw2: #131312;
+  --ring-rgb: 255,244,220; --spot-rgb: 255,250,235; --halo-rgb: 230,208,162;
+  --second: #18181b; --second-1: #26262b; --second-2: #0e0e10; --second-rgb: 120,120,130;
+  --seal-hi: #4a4a50; --seal-lo: #08080a; --seal-drip: #2a2a2e; --seal-ring-rgb: 255,244,220; --seal-shadow-rgb: 0,0,0; --seal-text-rgb: 240,225,190;
+  --tube-1: #fff1d6; --tube-2: #e3c88e; --tube-rgb: 227,200,142; --neon-off-rgb: 255,248,235;
+  --na: #ffffff; --na-1: #fff3dc; --na-2: #e3c88e; --na-rgb: 210,180,120;
+  --nb: #fff6e4; --nb-rgb: 158,134,85;
+  --sph-0: #ffffff; --sph-1: #eef0f4; --sph-2: #b9bcc4; --sph-3: #6c7079; --sph-4: #2c2e33; --sph-5: #0f1012;
+  --sph-shadow-rgb: 5,5,8; --sph-inner-rgb: 230,235,245; --sph-glow-rgb: 220,225,235; --let-1: #d9dce3;
+  --wire: #26262a; --wire-dim: #1e1e21; --bulb-off-1: #4a4a4e; --bulb-off-2: #1c1c1f;
+  --bulb-hi: #fffdf6; --bulb-mid: #fff4da; --bulb-lo: #e6d0a2; --halo: #e8d2a0;
+  --rope: #2e2c29; --rope-twist: #8a857a; --hook-stroke: #4a4640;
+  --confetti: #e6d0a2,#fff4da,#b9bcc4,#f4f1ea,#9e8655;
+  --sparks: #fff4da,#e6d0a2,#ffffff,#fff1d6;
+  --seal-parts: #26262b,#0e0e10,#4a4a50;
+}
+
+/* Производные — общие для всех палитр */
+:root, [data-palette] {
+  --gold-grad: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 50%, var(--gold-deep) 100%);
+  --dots: radial-gradient(circle, rgba(var(--dots-rgb),.05) 1px, transparent 1.5px) 0 0 / 28px 28px;
+  --wine: var(--second);
+}

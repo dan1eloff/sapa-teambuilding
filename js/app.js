@@ -10,6 +10,10 @@
   var TOTAL = 4;
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  // Цвет панели браузера — под фон палитры
+  var themeMeta = document.querySelector('meta[name="theme-color"]');
+  var bgVar = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  if (themeMeta && bgVar) themeMeta.setAttribute('content', bgVar);
 
   function vibrate(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
   function pad(n) { return String(n).padStart(2, '0'); }
@@ -398,7 +402,7 @@
     Confetti.burst({
       x: (r.left + r.width / 2) / window.innerWidth, y: (r.top + r.height * 0.6) / window.innerHeight,
       count: 46, spread: 300, angle: 90, velocity: 17, scale: 0.45, dots: true,
-      colors: ['#ffe2ae', '#f2ab55', '#fff4dc', '#ff8a7a']
+      colors: Confetti.colors('--sparks') || undefined
     });
   }
 
@@ -739,7 +743,7 @@
       Confetti.burst({
         x: (r.left + r.width / 2) / window.innerWidth, y: (r.top + r.height / 2) / window.innerHeight,
         count: 16, spread: 360, angle: 90, velocity: 9, scale: 0.4, dots: true,
-        colors: ['#9a3040', '#6e1c28', '#c2414f']
+        colors: Confetti.colors('--seal-parts') || undefined
       });
     }, reduce ? 0 : 360);
     setTimeout(toFinal, reduce ? 400 : 1400);

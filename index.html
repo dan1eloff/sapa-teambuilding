@@ -23,6 +23,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700&family=Montserrat:wght@200;300;400;500;600;700;800;900&family=Tilt+Neon&display=swap" rel="stylesheet">
+  <script>
+    // Палитра из ссылки: ?palette=whisky|emerald|midnight|wine|noir (по умолчанию — whisky)
+    (function () {
+      var all = ['whisky', 'emerald', 'midnight', 'wine', 'noir'];
+      var p = new URLSearchParams(location.search).get('palette');
+      document.documentElement.setAttribute('data-palette', all.indexOf(p) > -1 ? p : 'whisky');
+    })();
+  </script>
+  <link rel="stylesheet" href="css/palettes.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="stage-intro">
@@ -30,19 +39,19 @@
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
       <radialGradient id="g-off" cx=".4" cy=".3" r=".7">
-        <stop offset="0" stop-color="#5a4232"/>
-        <stop offset="1" stop-color="#2a1c15"/>
+        <stop offset="0" style="stop-color:var(--bulb-off-1)"/>
+        <stop offset="1" style="stop-color:var(--bulb-off-2)"/>
       </radialGradient>
       <radialGradient id="g-on" cx=".5" cy=".38" r=".62">
-        <stop offset="0" stop-color="#fffaf0"/>
-        <stop offset=".22" stop-color="#fffaf0"/>
-        <stop offset=".45" stop-color="#ffe2ae"/>
-        <stop offset="1" stop-color="#f2ab55"/>
+        <stop offset="0" style="stop-color:var(--bulb-hi)"/>
+        <stop offset=".22" style="stop-color:var(--bulb-hi)"/>
+        <stop offset=".45" style="stop-color:var(--bulb-mid)"/>
+        <stop offset="1" style="stop-color:var(--bulb-lo)"/>
       </radialGradient>
       <radialGradient id="g-halo">
-        <stop offset="0" stop-color="#f0963c" stop-opacity=".55"/>
-        <stop offset=".45" stop-color="#f0963c" stop-opacity=".18"/>
-        <stop offset="1" stop-color="#f0963c" stop-opacity="0"/>
+        <stop offset="0" style="stop-color:var(--halo);stop-opacity:.55"/>
+        <stop offset=".45" style="stop-color:var(--halo);stop-opacity:.18"/>
+        <stop offset="1" style="stop-color:var(--halo);stop-opacity:0"/>
       </radialGradient>
     </defs>
   </svg>

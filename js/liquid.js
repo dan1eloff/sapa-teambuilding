@@ -35,22 +35,18 @@
     'uniform vec4 uShadow;',    // x, y, полуширина, полувысота
     'uniform vec2 uShadowA;',   // альфа тени, альфа отблеска
     'uniform vec3 uSph;',       // центр и видимый радиус сферы: внутри — гладкие сферические нормали
+    'uniform vec3 uRamp[5];',   // цвета сферы из палитры: от освещённого к теневому краю
+    'uniform vec3 uLet[4];',    // вертикальный градиент букв
+    'uniform vec3 uGlowC;', 'uniform vec3 uFloorC;', 'uniform vec3 uHiC;', 'uniform vec3 uInnerC;',
     'vec3 amberRamp(float k) {',
-    '  vec3 c0 = vec3(1.000, 0.816, 0.525);',
-    '  vec3 c1 = vec3(0.941, 0.627, 0.275);',
-    '  vec3 c2 = vec3(0.710, 0.369, 0.118);',
-    '  vec3 c3 = vec3(0.345, 0.129, 0.043);',
-    '  vec3 c4 = vec3(0.161, 0.051, 0.020);',
+    '  vec3 c0 = uRamp[0]; vec3 c1 = uRamp[1]; vec3 c2 = uRamp[2]; vec3 c3 = uRamp[3]; vec3 c4 = uRamp[4];',
     '  if (k < 0.30) return mix(c0, c1, k / 0.30);',
     '  if (k < 0.58) return mix(c1, c2, (k - 0.30) / 0.28);',
     '  if (k < 0.86) return mix(c2, c3, (k - 0.58) / 0.28);',
     '  return mix(c3, c4, clamp((k - 0.86) / 0.14, 0.0, 1.0));',
     '}',
     'vec3 letterRamp(float y) {',
-    '  vec3 a = vec3(1.000, 0.949, 0.839);',
-    '  vec3 b = vec3(0.949, 0.671, 0.333);',
-    '  vec3 c = vec3(0.710, 0.369, 0.118);',
-    '  vec3 d = vec3(0.345, 0.129, 0.043);',
+    '  vec3 a = uLet[0]; vec3 b = uLet[1]; vec3 c = uLet[2]; vec3 d = uLet[3];',
     '  if (y < 0.40) return mix(a, b, y / 0.40);',
     '  if (y < 0.75) return mix(b, c, (y - 0.40) / 0.35);',
     '  return mix(c, d, clamp((y - 0.75) / 0.25, 0.0, 1.0));',
@@ -60,7 +56,7 @@
     '}',
     'void main(){',
     '  vec2 p = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) / uDpr;',
-    '  vec3 amber = vec3(0.941, 0.588, 0.235);',
+    '  vec3 amber = uGlowC;',
     // слой под жидкостью: свечение, тень, отблеск
     '  float ga = uGlow.w * clamp(1.0 - length(p - uGlow.xy) / uGlow.z, 0.0, 1.0);',
     '  vec4 under = vec4(amber * ga, ga);',
@@ -69,7 +65,7 @@
     '  under = under * (1.0 - sa) + vec4(0.0, 0.0, 0.0, sa);',
     '  float rr = length((p - uShadow.xy) / (uShadow.zw * vec2(0.7, 0.69)));',
     '  float ra = uShadowA.y * 0.35 * clamp(1.0 - rr, 0.0, 1.0);',
-    '  under = under * (1.0 - ra) + vec4(vec3(0.949, 0.671, 0.333) * ra, ra);',
+    '  under = under * (1.0 - ra) + vec4(uFloorC * ra, ra);',
     // поле метаболов и букв
     '  float f = 0.0; vec2 g = vec2(0.0);',
     '  for (int i = 0; i < 16; i++) {',
@@ -130,7 +126,7 @@
     '    }',
     '    float rim = pow(1.0 - clamp(n.z, 0.0, 1.0), 1.3);',
     '    vec2 nd = normalize(n.xy + 0.0001);',
-    '    col += vec3(1.0, 0.745, 0.431) * 0.28 * max(nd.y, 0.0) * rim;',            // нижний внутренний отсвет
+    '    col += uInnerC * 0.28 * max(nd.y, 0.0) * rim;',            // нижний внутренний отсвет
     '    col += vec3(1.0) * 0.16 * max(dot(nd, vec2(-0.6, -0.8)), 0.0) * rim;',     // светлая кромка слева сверху
     '    vec2 hb = vec2(n.x / 0.56, (n.y + 0.6) / 0.22);',
     '    float band = (1.0 - smoothstep(0.7, 1.0, dot(hb, hb))) * clamp((-n.y - 0.38) / 0.44, 0.0, 1.0);',
@@ -142,7 +138,7 @@
     '    lamps += 0.35 * (1.0 - smoothstep(0.0, 0.07, length(n.xy - vec2(0.12, -0.66))));',
     '    col = mix(col, vec3(1.0, 0.98, 0.94), clamp(lamps, 0.0, 1.0));',            // отражения ламп
     '    float spec = pow(max(dot(n, H), 0.0), 160.0);',
-    '    col = mix(col, vec3(1.0, 0.949, 0.839), clamp(spec * 1.3, 0.0, 1.0));',      // горячая точка
+    '    col = mix(col, uHiC, clamp(spec * 1.3, 0.0, 1.0));',      // горячая точка
     '    float a = alpha * uAlpha;',
     '    float halo = smoothstep(0.25, 1.0, f) * (1.0 - alpha);',
     '    float ha = halo * halo * 0.22 * uAlpha;',
@@ -205,6 +201,25 @@
     return s;
   }
 
+  function cssColor(name) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    if (v.charAt(0) === '#') {
+      if (v.length === 4) v = '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+      return [parseInt(v.substr(1, 2), 16) / 255, parseInt(v.substr(3, 2), 16) / 255, parseInt(v.substr(5, 2), 16) / 255];
+    }
+    var parts = v.split(',').map(function (x) { return parseFloat(x) / 255; });
+    return parts.length === 3 && parts.every(function (x) { return !isNaN(x); }) ? parts : [1, 0.6, 0.3];
+  }
+  function paletteColors() {
+    function flat(names) { return new Float32Array([].concat.apply([], names.map(cssColor))); }
+    return {
+      ramp: flat(['--sph-1', '--sph-2', '--sph-3', '--sph-4', '--sph-5']),
+      letters: flat(['--sph-0', '--let-1', '--sph-3', '--sph-4']),
+      glow: flat(['--sph-glow-rgb']), floor: flat(['--let-1']),
+      hi: flat(['--sph-0']), inner: flat(['--sph-inner-rgb'])
+    };
+  }
+
   function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
   function create(canvas, opts) {
@@ -230,7 +245,8 @@
     gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
 
     var U = {};
-    ['uRes', 'uDpr', 'uTime', 'uBalls', 'uCount', 'uAtlas', 'uRects', 'uW', 'uR', 'uAlpha', 'uGlow', 'uShadow', 'uShadowA', 'uSph'].forEach(function (n) {
+    ['uRes', 'uDpr', 'uTime', 'uBalls', 'uCount', 'uAtlas', 'uRects', 'uW', 'uR', 'uAlpha', 'uGlow', 'uShadow', 'uShadowA', 'uSph',
+     'uRamp', 'uLet', 'uGlowC', 'uFloorC', 'uHiC', 'uInnerC'].forEach(function (n) {
       U[n] = gl.getUniformLocation(prog, n) || gl.getUniformLocation(prog, n + '[0]');
     });
 
@@ -242,6 +258,15 @@
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, makeAtlas(opts.letters, opts.family));
     gl.uniform1i(U.uAtlas, 0);
+
+    // Цвета сферы и букв — из CSS-переменных активной палитры
+    var pal = paletteColors();
+    gl.uniform3fv(U.uRamp, pal.ramp);
+    gl.uniform3fv(U.uLet, pal.letters);
+    gl.uniform3fv(U.uGlowC, pal.glow);
+    gl.uniform3fv(U.uFloorC, pal.floor);
+    gl.uniform3fv(U.uHiC, pal.hi);
+    gl.uniform3fv(U.uInnerC, pal.inner);
 
     var reduce = !!opts.reduce;
     var S = {

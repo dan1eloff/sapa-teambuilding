@@ -5,6 +5,13 @@
   var COLORS = ['#f2ab55', '#ffe2ae', '#c2414f', '#f5ebde', '#d2852f'];
   var W = 0, H = 0, parts = [], running = false, last = 0;
 
+  // Цвета конфетти берутся из активной палитры (css/palettes.css)
+  function paletteList(name) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    var list = v ? v.split(',').map(function (x) { return x.trim(); }).filter(Boolean) : [];
+    return list.length ? list : null;
+  }
+
   function resize() {
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = window.innerWidth; H = window.innerHeight;
@@ -22,7 +29,7 @@
     var angle = (o.angle == null ? 90 : o.angle) * Math.PI / 180;
     var spread = (o.spread == null ? 70 : o.spread) * Math.PI / 180;
     var v0 = o.velocity || Math.max(26, Math.min(48, H * 0.05));
-    var cols = o.colors || COLORS, sc = o.scale || 1;
+    var cols = o.colors || paletteList('--confetti') || COLORS, sc = o.scale || 1;
     for (var i = 0; i < n; i++) {
       parts.push({
         x: x, y: y,
@@ -76,5 +83,5 @@
     else { running = false; ctx.clearRect(0, 0, W, H); }
   }
 
-  window.Confetti = { burst: burst };
+  window.Confetti = { burst: burst, colors: paletteList };
 })();

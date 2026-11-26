@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Сапа · сравнение палитр</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#121212">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #121212; --panel: #1b1b1b; --line: #2a2a2a; --ink: #f1f1f1; --muted: #9a9a9a; --col: 188px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); height: 100%; }
+  body { font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; overflow: hidden; }
+  header.top { flex: none; padding: 22px 20px 14px; max-width: 1200px; }
+  h1 { font: 800 24px/1.2 Montserrat, sans-serif; }
+  .lead { margin-top: 8px; color: var(--muted); font-size: 14px; line-height: 1.5; max-width: 640px; }
+  .scroller { flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; padding: 0 20px 40px; }
+  .grid { display: grid; grid-template-columns: 92px repeat(5, var(--col)); gap: 14px; width: max-content; }
+  .head {
+    position: sticky; top: 0; z-index: 2; padding: 14px 12px 12px; border-radius: 14px;
+    background: var(--panel); border: 1px solid var(--line);
+  }
+  .head h2 { font: 800 15px/1.2 Montserrat, sans-serif; }
+  .head p { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.4; min-height: 34px; }
+  .sw { display: flex; gap: 4px; margin-top: 10px; }
+  .sw i { flex: 1; height: 18px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .live {
+    display: block; margin-top: 10px; padding: 8px 0; border-radius: 999px; text-align: center;
+    font: 700 12px Montserrat, sans-serif; color: #111; background: #f1f1f1; text-decoration: none;
+  }
+  .head, .corner { background-clip: padding-box; box-shadow: 0 10px 18px var(--bg); }
+  .corner { background: var(--bg); }
+  .rowlabel { position: sticky; left: 0; z-index: 1; align-self: center; font: 700 12px/1.3 Montserrat, sans-serif; color: var(--muted); letter-spacing: .04em; }
+  .shot {
+    display: block; width: var(--col); aspect-ratio: 390 / 844; border-radius: 18px; overflow: hidden;
+    background: #000; border: 1px solid var(--line); cursor: zoom-in; padding: 0;
+  }
+  .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .corner { position: sticky; top: 0; z-index: 2; }
+  /* Просмотр крупно */
+  .lb { position: fixed; inset: 0; z-index: 10; background: rgba(0,0,0,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px; }
+  .lb[hidden] { display: none; }
+  .lb img { max-height: calc(100dvh - 120px); max-width: 100%; border-radius: 22px; }
+  .lb-bar { display: flex; align-items: center; gap: 12px; color: var(--ink); font: 700 14px Montserrat, sans-serif; }
+  .lb-bar button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #444; background: #1b1b1b; color: #fff; font-size: 20px; cursor: pointer; }
+  .lb-name { min-width: 170px; text-align: center; }
+  .lb-close { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #222; color: #fff; font-size: 26px; cursor: pointer; }
+  .hint { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+  <header class="top">
+    <h1>Сапа · сравнение палитр</h1>
+    <p class="lead">Одни и те же экраны приглашения в пяти палитрах. Нажмите на скриншот — откроется крупно, стрелками (или свайпом) листайте палитры на том же экране. «Открыть вживую» — живая версия в этой палитре со звуком и анимацией.</p>
+  </header>
+  <div class="scroller"><div class="grid" id="grid"></div></div>
+
+  <div class="lb" id="lb" hidden>
+    <button class="lb-close" id="lbClose" aria-label="Закрыть">×</button>
+    <img id="lbImg" alt="">
+    <div class="lb-bar">
+      <button id="lbPrev" aria-label="Предыдущая палитра">‹</button>
+      <div class="lb-name" id="lbName"></div>
+      <button id="lbNext" aria-label="Следующая палитра">›</button>
+    </div>
+    <p class="hint" id="lbScreen"></p>
+  </div>
+
+<script>
+  var PALETTES = [
+    { id: 'whisky', name: 'Виски', desc: 'Янтарь, коньячный фон, бордо. Текущая.', sw: ['#120b08', '#f2ab55', '#ffe2ae', '#8c2a38', '#ff8a7a'] },
+    { id: 'emerald', name: 'Изумруд', desc: 'Фирменный зелёный Сапа и золото.', sw: ['#06110d', '#46cf9f', '#f0c06a', '#1f7a5e', '#7ff0c8'] },
+    { id: 'midnight', name: 'Полночь', desc: 'Тёмно-синий и латунь, как джазовые пластинки.', sw: ['#070a16', '#6a8ef2', '#e8c27a', '#1f2f75', '#8fb8ff'] },
+    { id: 'wine', name: 'Бордо', desc: 'Винный и розовое золото.', sw: ['#13060a', '#c93a5b', '#f2b28c', '#5e1226', '#ff9ac4'] },
+    { id: 'noir', name: 'Нуар', desc: 'Чёрный, шампань и жидкое серебро.', sw: ['#0b0b0c', '#b9bcc4', '#e6d0a2', '#18181b', '#fff1d6'] }
+  ];
+  var SCREENS = ['Вход', 'Код', 'Приглашение', 'Галерея', 'Билет', 'Финал'];
+  var grid = document.getElementById('grid');
+  function src(p, s) { return 'docs/palettes/' + p + '-' + (s + 1) + '.jpg'; }
+
+  var corner = document.createElement('div'); corner.className = 'corner'; grid.appendChild(corner);
+  PALETTES.forEach(function (p) {
+    var h = document.createElement('div'); h.className = 'head';
+    h.innerHTML = '<h2></h2><p></p><div class="sw"></div><a class="live" target="_blank" rel="noopener">Открыть вживую</a>';
+    h.querySelector('h2').textContent = p.name;
+    h.querySelector('p').textContent = p.desc;
+    h.querySelector('.live').href = 'index.html?palette=' + p.id;
+    p.sw.forEach(function (c) { var i = document.createElement('i'); i.style.background = c; h.querySelector('.sw').appendChild(i); });
+    grid.appendChild(h);
+  });
+  SCREENS.forEach(function (name, s) {
+    var l = document.createElement('div'); l.className = 'rowlabel'; l.textContent = name; grid.appendChild(l);
+    PALETTES.forEach(function (p, pi) {
+      var b = document.createElement('button'); b.className = 'shot';
+      b.setAttribute('aria-label', p.name + ' — ' + name);
+      var img = new Image(); img.loading = 'lazy'; img.alt = p.name + ' — ' + name; img.src = src(p.id, s);
+      b.appendChild(img);
+      b.addEventListener('click', function () { open(pi, s); });
+      grid.appendChild(b);
+    });
+  });
+
+  var lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg');
+  var cur = { p: 0, s: 0 };
+  function show() {
+    lbImg.src = src(PALETTES[cur.p].id, cur.s);
+    document.getElementById('lbName').textContent = PALETTES[cur.p].name;
+    document.getElementById('lbScreen').textContent = SCREENS[cur.s] + ' · ' + (cur.p + 1) + ' / ' + PALETTES.length;
+  }
+  function open(p, s) { cur = { p: p, s: s }; show(); lb.hidden = false; }
+  function step(d) { cur.p = (cur.p + d + PALETTES.length) % PALETTES.length; show(); }
+  document.getElementById('lbPrev').onclick = function () { step(-1); };
+  document.getElementById('lbNext').onclick = function () { step(1); };
+  document.getElementById('lbClose').onclick = function () { lb.hidden = true; };
+  lb.addEventListener('click', function (e) { if (e.target === lb) lb.hidden = true; });
+  document.addEventListener('keydown', function (e) {
+    if (lb.hidden) return;
+    if (e.key === 'ArrowRight') step(1);
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowDown') { cur.s = Math.min(SCREENS.length - 1, cur.s + 1); show(); }
+    else if (e.key === 'ArrowUp') { cur.s = Math.max(0, cur.s - 1); show(); }
+    else if (e.key === 'Escape') lb.hidden = true;
+  });
+  var tx = null;
+  lbImg.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; }, { passive: true });
+  lbImg.addEventListener('touchend', function (e) {
+    if (tx === null) return;
+    var dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>
