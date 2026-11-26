@@ -170,6 +170,74 @@
     tone(90, { dur: 0.18, vol: 0.18 });
   }
 
+  function noiseBuffer(sec) {
+    var len = Math.floor(ctx.sampleRate * sec);
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    return buf;
+  }
+
+  // Скрип пера: шум, громкость зависит от скорости росчерка
+  var scr = null;
+  function scratchStart() {
+    if (muted || !ensureCtx() || scr) return;
+    var src = ctx.createBufferSource(); src.buffer = noiseBuffer(1); src.loop = true;
+    var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = 0.7;
+    var g = ctx.createGain(); g.gain.value = 0;
+    src.connect(bp); bp.connect(g); g.connect(master);
+    src.start();
+    scr = { src: src, g: g, bp: bp };
+  }
+  function scratch(speed) {
+    if (!scr) return;
+    var t = ctx.currentTime;
+    scr.g.gain.setTargetAtTime(Math.min(0.07, speed * 0.035), t, 0.02);
+    scr.bp.frequency.setTargetAtTime(2600 + Math.min(2000, speed * 900), t, 0.03);
+  }
+  function scratchStop() {
+    if (!scr) return;
+    var s = scr; scr = null;
+    s.g.gain.setTargetAtTime(0, ctx.currentTime, 0.03);
+    setTimeout(function () { try { s.src.stop(); } catch (e) {} }, 200);
+  }
+
+  // Удар сургучной печати
+  function thud() {
+    if (muted || !ensureCtx()) return;
+    var t = ctx.currentTime;
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(150, t);
+    o.frequency.exponentialRampToValueAtTime(55, t + 0.18);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.35, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + 0.32);
+    var src = ctx.createBufferSource(); src.buffer = noiseBuffer(0.08);
+    var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+    var g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0.25, t); g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+    src.connect(lp); lp.connect(g2); g2.connect(master);
+    src.start(t);
+  }
+
+  // Шорох фотографии, когда её смахивают
+  function flick() {
+    if (muted || !ensureCtx()) return;
+    var t = ctx.currentTime;
+    var src = ctx.createBufferSource(); src.buffer = noiseBuffer(0.25);
+    var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 0.9;
+    bp.frequency.setValueAtTime(1200, t);
+    bp.frequency.exponentialRampToValueAtTime(4200, t + 0.2);
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.09, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    src.connect(bp); bp.connect(g); g.connect(master);
+    src.start(t);
+  }
+
   // Уровень баса/середины 0…1 для огней в ритм (адаптивная нормализация)
   function level() {
     if (!analyser || !musicOn) return lvl;
@@ -188,6 +256,7 @@
     unlock: unlock, startMusic: startMusic, toggleMute: toggleMute,
     chime: chime, success: success, error: error, whoosh: whoosh,
     bloop: bloop, switchOn: switchOn, level: level,
+    scratchStart: scratchStart, scratch: scratch, scratchStop: scratchStop, thud: thud, flick: flick,
     isMuted: function () { return muted; },
     _debug: function () { return { ctx: ctx && ctx.state, paused: el.paused, t: el.currentTime, gain: musicGain && musicGain.gain.value, webAudio: !!srcNode }; }
   };
