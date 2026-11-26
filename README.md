@@ -11,7 +11,7 @@
 
 ## Палитры
 
-Пять палитр в `css/palettes.css`: `whisky` (по умолчанию), `emerald`, `midnight`, `wine`, `noir`.
+Пять палитр в `css/palettes.css`: `midnight` (основная), `whisky`, `emerald`, `wine`, `noir`.
 Включаются ссылкой `index.html?palette=emerald`. Сравнение всех палитр — `palettes.html`
 (скриншоты в `docs/palettes/`). Чтобы сделать палитру основной, поменяйте значение по умолчанию
 в скрипте в `<head>` файла `index.html`.

@@ -1,11 +1,12 @@
 /*
  * Палитры. Включаются атрибутом <html data-palette="…"> (ссылка ?palette=whisky|emerald|midnight|wine|noir).
+ * Основная — midnight (задана в index.html).
  * Все цвета сайта, сферы (шейдер читает --sph-*), гирлянды и конфетти берутся отсюда.
  * Переменные с суффиксом -rgb — это «r,g,b» для rgba(var(--x-rgb), alpha).
  */
 
 /* ---------- Виски: янтарь, коньячный фон, бордо ---------- */
-:root, [data-palette="whisky"] {
+[data-palette="whisky"] {
   --bg: #120b08; --bg-2: #100a07;
   --ink: #f5ebde; --muted: #ae9886; --faint: #8f7867; --label: #eaa75e;
   --gold: #f2ab55; --gold-hi: #ffe2ae; --gold-deep: #b0632a; --gold-mid: #c27432; --accent-rgb: 242,171,85;
